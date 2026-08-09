@@ -1,0 +1,81 @@
+import type { Metadata, Viewport } from "next";
+import { Playfair_Display, Montserrat } from "next/font/google";
+import Link from "next/link";
+import "./globals.css";
+import Header from "@/components/Header";
+import Providers from "@/components/Providers";
+
+const display = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["700", "900"],
+  variable: "--font-display",
+  display: "swap",
+});
+
+const sans = Montserrat({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+export const metadata: Metadata = {
+  title: {
+    default: "US Anizy-Pinon",
+    template: "%s · US Anizy-Pinon",
+  },
+  description:
+    "L'application du club de l'US Anizy-Pinon : matchs, équipes, effectifs et actualités.",
+  manifest: "/manifest.json",
+  appleWebApp: { capable: true, title: "USAP", statusBarStyle: "black-translucent" },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0c0c0d",
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="fr" className={`${display.variable} ${sans.variable}`}>
+      <body className="flex min-h-dvh flex-col">
+        <Providers>
+          <Header />
+          <main className="flex-1">{children}</main>
+
+          <footer className="mt-20 border-t border-white/10 bg-noir-2">
+            <div className="wrap flex flex-col gap-4 py-10 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="font-display text-lg font-black uppercase">US Anizy-Pinon</p>
+                <p className="mt-1 text-xs text-cream/50">
+                  Un club, une passion, une famille.
+                </p>
+              </div>
+              <nav className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-cream/60">
+                <Link href="/matchs" className="hover:text-jaune">
+                  Matchs
+                </Link>
+                <Link href="/equipes" className="hover:text-jaune">
+                  Équipes
+                </Link>
+                <Link href="/actus" className="hover:text-jaune">
+                  Actus
+                </Link>
+                <Link href="/club" className="hover:text-jaune">
+                  Le club
+                </Link>
+                <a
+                  href="https://usanizypinon.fr"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-jaune"
+                >
+                  Site du club
+                </a>
+              </nav>
+            </div>
+          </footer>
+        </Providers>
+      </body>
+    </html>
+  );
+}

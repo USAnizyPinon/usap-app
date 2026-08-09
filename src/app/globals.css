@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-noir text-cream font-sans antialiased;
+  }
+  /* Accessibilite : le focus clavier doit rester visible */
+  :focus-visible {
+    outline: 2px solid #ffcc00;
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .wrap {
+    @apply mx-auto w-full max-w-6xl px-5;
+  }
+
+  /* Petit libelle dore au-dessus des titres */
+  .eyebrow {
+    @apply inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[.28em] text-jaune;
+  }
+  .eyebrow::before {
+    content: "";
+    @apply block h-[2px] w-6 bg-jaune;
+  }
+
+  .title {
+    @apply font-display text-3xl font-black uppercase leading-[.95] sm:text-4xl;
+  }
+
+  .card {
+    @apply rounded-2xl border border-white/10 bg-noir-2 p-5 shadow-card;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5
+           text-sm font-bold transition disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-jaune {
+    @apply btn bg-jaune text-noir hover:bg-jaune-deep;
+  }
+  .btn-ghost {
+    @apply btn border border-white/20 text-cream hover:border-jaune hover:text-jaune;
+  }
+
+  .input {
+    @apply w-full rounded-lg border border-white/15 bg-noir-3 px-3 py-2 text-sm text-cream
+           placeholder:text-cream/35 focus:border-jaune focus:outline-none;
+  }
+  .label {
+    @apply mb-1 block text-[11px] font-bold uppercase tracking-wider text-cream/60;
+  }
+
+  /* Signature visuelle : les obliques du maillot du club */
+  .stripes {
+    background-image: repeating-linear-gradient(
+      115deg,
+      rgba(255, 204, 0, 0.14) 0px,
+      rgba(255, 204, 0, 0.14) 7px,
+      transparent 7px,
+      transparent 20px
+    );
+  }
+}
