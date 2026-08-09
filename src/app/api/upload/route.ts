@@ -4,7 +4,15 @@ import { uploadPhoto } from "@/lib/storage";
 
 export const runtime = "nodejs";
 
-const MAX = 6 * 1024 * 1024; // 6 Mo apres recadrage : largement suffisant
+const MAX = 8 * 1024 * 1024; // 8 Mo : large, un PNG recadre reste bien en dessous
+
+// Formats acceptes -> extension du fichier stocke
+const FORMATS: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/jpg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+};
 
 export async function POST(req: Request) {
   try {
@@ -24,10 +32,18 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Aucune image reçue." }, { status: 400 });
   }
   if (file.size > MAX) {
-    return NextResponse.json({ error: "Image trop lourde." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Image trop lourde (8 Mo maximum)." },
+      { status: 400 }
+    );
   }
-  if (!file.type.startsWith("image/")) {
-    return NextResponse.json({ error: "Ce fichier n'est pas une image." }, { status: 400 });
+
+  const ext = FORMATS[file.type];
+  if (!ext) {
+    return NextResponse.json(
+      { error: "Format non accepté. Utilisez une image JPG ou PNG." },
+      { status: 400 }
+    );
   }
 
   const slug = prefix
@@ -37,11 +53,11 @@ export async function POST(req: Request) {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
 
-  const name = `${slug || "photo"}-${Date.now()}.jpg`;
+  const name = `${slug || "photo"}-${Date.now()}.${ext}`;
 
   try {
     const buffer = Buffer.from(await file.arrayBuffer());
-    const url = await uploadPhoto(buffer, name, "image/jpeg");
+    const url = await uploadPhoto(buffer, name, file.type);
     return NextResponse.json({ url });
   } catch (e) {
     const message = e instanceof Error ? e.message : "Envoi impossible.";

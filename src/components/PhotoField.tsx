@@ -36,8 +36,11 @@ export default function PhotoField({
   const [error, setError] = useState<string | null>(null);
   const input = useRef<HTMLInputElement>(null);
 
-  /** Recadre au centre, redimensionne, exporte en JPEG. */
-  async function recadrer(file: File): Promise<Blob> {
+  /**
+   * Recadre au centre, redimensionne, et conserve le format :
+   * un PNG reste un PNG (transparence gardee), le reste part en JPEG.
+   */
+  async function recadrer(file: File): Promise<{ blob: Blob; type: string }> {
     const { w, h } = SIZES[ratio];
     const bitmap = await createImageBitmap(file);
 
@@ -67,11 +70,15 @@ export default function PhotoField({
     ctx.imageSmoothingQuality = "high";
     ctx.drawImage(bitmap, sx, sy, sw, sh, 0, 0, w, h);
 
+    const png = file.type === "image/png";
+    const type = png ? "image/png" : "image/jpeg";
+
     const blob: Blob | null = await new Promise((r) =>
-      canvas.toBlob(r, "image/jpeg", 0.85)
+      // La qualite ne s'applique qu'au JPEG ; le PNG est sans perte.
+      canvas.toBlob(r, type, png ? undefined : 0.85)
     );
     if (!blob) throw new Error("Recadrage impossible sur cet appareil.");
-    return blob;
+    return { blob, type };
   }
 
   async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -81,10 +88,11 @@ export default function PhotoField({
     setBusy(true);
     setError(null);
     try {
-      const blob = await recadrer(file);
+      const { blob, type } = await recadrer(file);
+      const ext = type === "image/png" ? "png" : "jpg";
 
       const fd = new FormData();
-      fd.append("file", new File([blob], "photo.jpg", { type: "image/jpeg" }));
+      fd.append("file", new File([blob], `photo.${ext}`, { type }));
       fd.append("prefix", prefix);
 
       const res = await fetch("/api/upload", { method: "POST", body: fd });
@@ -149,15 +157,16 @@ export default function PhotoField({
       <input
         ref={input}
         type="file"
-        accept="image/*"
+        accept="image/jpeg,image/png,image/webp,image/heic,image/*"
         onChange={onFile}
         className="hidden"
         aria-label={label}
       />
 
       <p className="mt-2 text-[11px] text-cream/40">
-        Recadrage automatique en {ratio === "portrait" ? "portrait" : "paysage"}. Prenez la
-        photo dans votre galerie ou avec l&apos;appareil photo.
+        JPG ou PNG. Recadrage automatique en{" "}
+        {ratio === "portrait" ? "portrait" : "paysage"} : choisissez la photo dans votre
+        galerie ou prenez-la avec l&apos;appareil photo.
       </p>
 
       {error && <p className="mt-2 text-xs font-semibold text-red-300">{error}</p>}
