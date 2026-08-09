@@ -4,6 +4,7 @@ import { useFormState } from "react-dom";
 import { publierActu } from "../actions";
 import SubmitButton from "@/components/SubmitButton";
 import FormMessage from "@/components/FormMessage";
+import PhotoField from "@/components/PhotoField";
 
 export default function NewsForm() {
   const [state, action] = useFormState(publierActu, null);
@@ -41,15 +42,16 @@ export default function NewsForm() {
           <textarea id="body" name="body" rows={5} className="input" />
         </div>
         <div className="sm:col-span-2">
-          <label className="label" htmlFor="image">Lien de l&apos;image (facultatif)</label>
-          <input
-            id="image"
-            name="image"
-            className="input"
-            placeholder="https://usanizypinon.fr/photos/equipe.jpg"
-          />
+          <PhotoField name="image" ratio="paysage" label="Photo de l'actualité" />
         </div>
       </div>
+
+      <label className="mt-5 flex cursor-pointer items-center gap-3">
+        <input type="checkbox" name="notifier" defaultChecked className="h-4 w-4 accent-jaune" />
+        <span className="text-sm">
+          Envoyer une notification aux licenciés abonnés
+        </span>
+      </label>
 
       <div className="mt-5">
         <SubmitButton>Publier</SubmitButton>

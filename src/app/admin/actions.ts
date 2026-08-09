@@ -3,7 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireEditor } from "@/lib/auth";
-import { slugify } from "@/lib/format";
+import { slugify, formatDateTime } from "@/lib/format";
+import { deletePhoto } from "@/lib/storage";
+import { destinatairesActu, destinatairesMatch, envoyerNotification } from "@/lib/push";
 import type { BoardGroup, Competition } from "@prisma/client";
 
 type Etat = { ok: boolean; message: string };
@@ -48,7 +50,7 @@ export async function creerMatch(_prev: Etat | null, fd: FormData): Promise<Etat
     if (!opponent) return { ok: false, message: "Indiquez l'adversaire." };
     if (!kickoff) return { ok: false, message: "Indiquez la date et l'heure." };
 
-    await prisma.match.create({
+    const match = await prisma.match.create({
       data: {
         teamId,
         opponent,
@@ -57,10 +59,24 @@ export async function creerMatch(_prev: Etat | null, fd: FormData): Promise<Etat
         competition: (str(fd, "competition") || "CHAMPIONNAT") as Competition,
         venue: str(fd, "venue") || null,
       },
+      include: { team: { select: { name: true } } },
     });
 
     refreshAll();
-    return { ok: true, message: `Match contre ${opponent} ajouté.` };
+
+    // Prevenir les personnes qui suivent cette categorie
+    let info = "";
+    if (str(fd, "notifier") === "on") {
+      const cibles = await destinatairesMatch(teamId);
+      const { envoyees } = await envoyerNotification(cibles, {
+        title: `${match.team.name} — nouveau match`,
+        body: `${match.home ? "Contre" : "À"} ${opponent} · ${formatDateTime(match.kickoff)}`,
+        url: "/matchs",
+      });
+      info = envoyees > 0 ? ` ${envoyees} personne(s) prévenue(s).` : "";
+    }
+
+    return { ok: true, message: `Match contre ${opponent} ajouté.${info}` };
   } catch {
     return { ok: false, message: "Enregistrement impossible. Vérifiez vos droits." };
   }
@@ -82,6 +98,35 @@ export async function enregistrerScore(_prev: Etat | null, fd: FormData): Promis
     return { ok: true, message: "Score enregistré." };
   } catch {
     return { ok: false, message: "Enregistrement impossible." };
+  }
+}
+
+export async function modifierMatch(_prev: Etat | null, fd: FormData): Promise<Etat> {
+  try {
+    await requireEditor();
+    const opponent = str(fd, "opponent");
+    const kickoff = str(fd, "kickoff");
+    if (!opponent) return { ok: false, message: "Indiquez l'adversaire." };
+    if (!kickoff) return { ok: false, message: "Indiquez la date et l'heure." };
+
+    await prisma.match.update({
+      where: { id: str(fd, "matchId") },
+      data: {
+        teamId: str(fd, "teamId"),
+        opponent,
+        kickoff: new Date(kickoff),
+        home: str(fd, "home") === "true",
+        competition: (str(fd, "competition") || "CHAMPIONNAT") as Competition,
+        venue: str(fd, "venue") || null,
+        scoreFor: num(fd, "scoreFor"),
+        scoreAgainst: num(fd, "scoreAgainst"),
+      },
+    });
+
+    refreshAll();
+    return { ok: true, message: "Match modifié." };
+  } catch {
+    return { ok: false, message: "Modification impossible." };
   }
 }
 
@@ -123,8 +168,34 @@ export async function ajouterJoueur(_prev: Etat | null, fd: FormData): Promise<E
 
 export async function supprimerJoueur(fd: FormData) {
   await requireEditor();
-  await prisma.player.delete({ where: { id: str(fd, "playerId") } });
+  const joueur = await prisma.player.delete({ where: { id: str(fd, "playerId") } });
+  if (joueur.photo) await deletePhoto(joueur.photo).catch(() => {});
   refreshAll();
+}
+
+export async function modifierJoueur(_prev: Etat | null, fd: FormData): Promise<Etat> {
+  try {
+    await requireEditor();
+    const firstName = str(fd, "firstName");
+    if (!firstName) return { ok: false, message: "Le prénom est obligatoire." };
+
+    await prisma.player.update({
+      where: { id: str(fd, "playerId") },
+      data: {
+        firstName,
+        lastName: str(fd, "lastName"),
+        teamId: str(fd, "teamId"),
+        position: str(fd, "position") || null,
+        number: num(fd, "number"),
+        photo: str(fd, "photo") || null,
+      },
+    });
+
+    refreshAll();
+    return { ok: true, message: "Joueur modifié." };
+  } catch {
+    return { ok: false, message: "Modification impossible." };
+  }
 }
 
 /** Change le role d'un membre (ADMIN uniquement dans l'interface). */
@@ -178,7 +249,19 @@ export async function publierActu(_prev: Etat | null, fd: FormData): Promise<Eta
     });
 
     refreshAll();
-    return { ok: true, message: "Actualité publiée." };
+
+    let info = "";
+    if (str(fd, "notifier") === "on") {
+      const cibles = await destinatairesActu();
+      const { envoyees } = await envoyerNotification(cibles, {
+        title: "US Anizy-Pinon",
+        body: title,
+        url: "/actus",
+      });
+      info = envoyees > 0 ? ` ${envoyees} personne(s) prévenue(s).` : "";
+    }
+
+    return { ok: true, message: `Actualité publiée.${info}` };
   } catch {
     return { ok: false, message: "Publication impossible." };
   }
@@ -186,8 +269,36 @@ export async function publierActu(_prev: Etat | null, fd: FormData): Promise<Eta
 
 export async function supprimerActu(fd: FormData) {
   await requireEditor();
-  await prisma.news.delete({ where: { id: str(fd, "newsId") } });
+  const actu = await prisma.news.delete({ where: { id: str(fd, "newsId") } });
+  if (actu.image) await deletePhoto(actu.image).catch(() => {});
   refreshAll();
+}
+
+export async function modifierActu(_prev: Etat | null, fd: FormData): Promise<Etat> {
+  try {
+    await requireEditor();
+    const title = str(fd, "title");
+    const excerpt = str(fd, "excerpt");
+    if (!title) return { ok: false, message: "Donnez un titre." };
+    if (!excerpt) return { ok: false, message: "Écrivez un résumé." };
+
+    await prisma.news.update({
+      where: { id: str(fd, "newsId") },
+      data: {
+        title,
+        excerpt,
+        body: str(fd, "body") || null,
+        tag: str(fd, "tag") || "Club",
+        image: str(fd, "image") || null,
+        published: str(fd, "published") === "on",
+      },
+    });
+
+    refreshAll();
+    return { ok: true, message: "Actualité modifiée." };
+  } catch {
+    return { ok: false, message: "Modification impossible." };
+  }
 }
 
 /* ==========================================================

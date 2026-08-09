@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import PlayerForm from "./PlayerForm";
 import RoleForm from "./RoleForm";
+import Link from "next/link";
 import { supprimerJoueur } from "../actions";
 
 export const dynamic = "force-dynamic";
@@ -52,12 +53,20 @@ export default async function AdminEffectifPage() {
                       {p.number != null ? ` · n°${p.number}` : ""}
                     </p>
                   </div>
-                  <form action={supprimerJoueur}>
-                    <input type="hidden" name="playerId" value={p.id} />
-                    <button className="text-xs font-bold text-red-300 hover:text-red-200">
-                      Retirer
-                    </button>
-                  </form>
+                  <div className="flex items-center gap-3">
+                    <Link
+                      href={`/admin/effectif/${p.id}`}
+                      className="text-xs font-bold text-jaune hover:underline"
+                    >
+                      Modifier
+                    </Link>
+                    <form action={supprimerJoueur}>
+                      <input type="hidden" name="playerId" value={p.id} />
+                      <button className="text-xs font-bold text-red-300 hover:text-red-200">
+                        Retirer
+                      </button>
+                    </form>
+                  </div>
                 </li>
               ))}
             </ul>

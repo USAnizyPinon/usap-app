@@ -3,6 +3,7 @@ import { COMPETITION_LABEL, formatDateTime, resultOf } from "@/lib/format";
 import MatchForm from "./MatchForm";
 import ScoreForm from "./ScoreForm";
 import SportCoricoCard from "@/components/SportCoricoCard";
+import Link from "next/link";
 import { supprimerMatch } from "../actions";
 
 export const dynamic = "force-dynamic";
@@ -54,12 +55,20 @@ export default async function AdminMatchsPage() {
                     {m.venue ? ` · ${m.venue}` : ""}
                   </p>
                 </div>
-                <form action={supprimerMatch}>
-                  <input type="hidden" name="matchId" value={m.id} />
-                  <button className="text-xs font-bold text-red-300 hover:text-red-200">
-                    Supprimer
-                  </button>
-                </form>
+                <div className="flex items-center gap-3">
+                  <Link
+                    href={`/admin/matchs/${m.id}`}
+                    className="text-xs font-bold text-jaune hover:underline"
+                  >
+                    Modifier
+                  </Link>
+                  <form action={supprimerMatch}>
+                    <input type="hidden" name="matchId" value={m.id} />
+                    <button className="text-xs font-bold text-red-300 hover:text-red-200">
+                      Supprimer
+                    </button>
+                  </form>
+                </div>
               </li>
             ))}
           </ul>
@@ -91,11 +100,19 @@ export default async function AdminMatchsPage() {
                     </p>
                   )}
                 </div>
-                <ScoreForm
-                  matchId={m.id}
-                  scoreFor={m.scoreFor}
-                  scoreAgainst={m.scoreAgainst}
-                />
+                <div className="flex flex-wrap items-end gap-4">
+                  <ScoreForm
+                    matchId={m.id}
+                    scoreFor={m.scoreFor}
+                    scoreAgainst={m.scoreAgainst}
+                  />
+                  <Link
+                    href={`/admin/matchs/${m.id}`}
+                    className="pb-2 text-xs font-bold text-jaune hover:underline"
+                  >
+                    Modifier
+                  </Link>
+                </div>
               </li>
             ))}
           </ul>

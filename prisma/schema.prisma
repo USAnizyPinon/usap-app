@@ -29,8 +29,29 @@ model User {
   role          Role      @default(LICENCIE)
   createdAt     DateTime  @default(now())
 
-  accounts Account[]
-  sessions Session[]
+  // Preferences de notification
+  notifyMatches Boolean @default(true)
+  notifyNews    Boolean @default(true)
+
+  accounts      Account[]
+  sessions      Session[]
+  favorites     Team[]             @relation("UserFavorites")
+  subscriptions PushSubscription[]
+}
+
+// Un navigateur/telephone abonne aux notifications.
+// Un meme compte peut en avoir plusieurs (telephone + ordinateur).
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }
 
 model Account {
@@ -82,9 +103,10 @@ model Team {
   description String? @db.Text
   photo       String?
 
-  players Player[]
-  staff   Staff[]
-  matches Match[]
+  players   Player[]
+  staff     Staff[]
+  matches   Match[]
+  favoredBy User[]   @relation("UserFavorites")
 }
 
 model Player {

@@ -79,6 +79,13 @@ export default function MatchForm({
         </div>
       </div>
 
+      <label className="mt-5 flex cursor-pointer items-center gap-3">
+        <input type="checkbox" name="notifier" defaultChecked className="h-4 w-4 accent-jaune" />
+        <span className="text-sm">
+          Prévenir les licenciés qui suivent cette catégorie
+        </span>
+      </label>
+
       <div className="mt-5">
         <SubmitButton>Ajouter le match</SubmitButton>
       </div>

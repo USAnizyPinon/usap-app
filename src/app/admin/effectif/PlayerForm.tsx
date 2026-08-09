@@ -4,6 +4,7 @@ import { useFormState } from "react-dom";
 import { ajouterJoueur } from "../actions";
 import SubmitButton from "@/components/SubmitButton";
 import FormMessage from "@/components/FormMessage";
+import PhotoField from "@/components/PhotoField";
 
 export default function PlayerForm({ teams }: { teams: { id: string; name: string }[] }) {
   const [state, action] = useFormState(ajouterJoueur, null);
@@ -36,14 +37,8 @@ export default function PlayerForm({ teams }: { teams: { id: string; name: strin
           <label className="label" htmlFor="number">Numéro (facultatif)</label>
           <input id="number" name="number" type="number" min={1} max={99} className="input" />
         </div>
-        <div>
-          <label className="label" htmlFor="photo">Lien de la photo (facultatif)</label>
-          <input
-            id="photo"
-            name="photo"
-            className="input"
-            placeholder="https://usanizypinon.fr/photos/nom.jpg"
-          />
+        <div className="sm:col-span-2 lg:col-span-3">
+          <PhotoField name="photo" ratio="portrait" label="Photo du joueur" />
         </div>
       </div>
 

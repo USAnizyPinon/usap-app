@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { formatDate } from "@/lib/format";
 import NewsForm from "./NewsForm";
+import Link from "next/link";
 import { supprimerActu } from "../actions";
 
 export const dynamic = "force-dynamic";
@@ -38,12 +39,20 @@ export default async function AdminActusPage() {
                   <p className="mt-2 font-bold">{a.title}</p>
                   <p className="mt-1 max-w-xl text-xs text-cream/55">{a.excerpt}</p>
                 </div>
-                <form action={supprimerActu}>
-                  <input type="hidden" name="newsId" value={a.id} />
-                  <button className="text-xs font-bold text-red-300 hover:text-red-200">
-                    Supprimer
-                  </button>
-                </form>
+                <div className="flex items-center gap-3">
+                  <Link
+                    href={`/admin/actus/${a.id}`}
+                    className="text-xs font-bold text-jaune hover:underline"
+                  >
+                    Modifier
+                  </Link>
+                  <form action={supprimerActu}>
+                    <input type="hidden" name="newsId" value={a.id} />
+                    <button className="text-xs font-bold text-red-300 hover:text-red-200">
+                      Supprimer
+                    </button>
+                  </form>
+                </div>
               </li>
             ))}
           </ul>
