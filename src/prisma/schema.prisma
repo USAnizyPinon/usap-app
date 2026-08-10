@@ -1,0 +1,198 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  // Supabase : URL "Transaction pooler" (port 6543) pour l'application
+  url       = env("DATABASE_URL")
+  // Supabase : URL "Direct connection" (port 5432) pour prisma db push / migrate
+  directUrl = env("DIRECT_URL")
+}
+
+// =====================================================================
+//  COMPTES — necessaires pour la connexion Google (NextAuth)
+// =====================================================================
+
+enum Role {
+  LICENCIE // par defaut : consultation seule
+  DIRIGEANT // peut modifier matchs, actus, effectifs
+  ADMIN // tout, + gestion des roles
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  role          Role      @default(LICENCIE)
+  createdAt     DateTime  @default(now())
+
+  // Preferences de notification
+  notifyMatches Boolean @default(true)
+  notifyNews    Boolean @default(true)
+
+  accounts      Account[]
+  sessions      Session[]
+  favorites     Team[]             @relation("UserFavorites")
+  subscriptions PushSubscription[]
+}
+
+// Un navigateur/telephone abonne aux notifications.
+// Un meme compte peut en avoir plusieurs (telephone + ordinateur).
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// =====================================================================
+//  LE CLUB — equipes, joueurs, encadrement, bureau
+// =====================================================================
+
+model Team {
+  id          String  @id @default(cuid())
+  name        String  @unique // "U14 · U15"
+  slug        String  @unique // "u14-u15"
+  order       Int     @default(0) // ordre d'affichage
+  level       String? // "Football à 11"
+  venue       String? // "Stade de Pinon"
+  description String? @db.Text
+  photo       String?
+
+  players   Player[]
+  staff     Staff[]
+  matches   Match[]
+  favoredBy User[]   @relation("UserFavorites")
+}
+
+model Player {
+  id        String  @id @default(cuid())
+  firstName String
+  lastName  String  @default("")
+  photo     String?
+  position  String? // "Gardien", "Milieu"...
+  number    Int?
+
+  teamId String
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@index([teamId])
+}
+
+model Staff {
+  id        String  @id @default(cuid())
+  firstName String
+  lastName  String  @default("")
+  role      String  @default("Éducateur")
+  photo     String?
+
+  teamId String?
+  team   Team?   @relation(fields: [teamId], references: [id], onDelete: SetNull)
+}
+
+enum BoardGroup {
+  BUREAU
+  RESPONSABLE
+  COMITE
+}
+
+model BoardMember {
+  id        String     @id @default(cuid())
+  firstName String
+  lastName  String     @default("")
+  role      String // "Présidente", "Trésorier"...
+  group     BoardGroup @default(BUREAU)
+  photo     String?
+  order     Int        @default(0)
+}
+
+// =====================================================================
+//  MATCHS — calendrier et resultats (le direct reste sur SportCorico)
+// =====================================================================
+
+enum Competition {
+  CHAMPIONNAT
+  COUPE
+  AMICAL
+  PLATEAU
+}
+
+model Match {
+  id          String      @id @default(cuid())
+  teamId      String
+  team        Team        @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  kickoff      DateTime
+  opponent     String
+  opponentLogo String?
+  home        Boolean     @default(true)
+  competition Competition @default(CHAMPIONNAT)
+  venue       String?
+  // resultat : laisser vide tant que le match n'est pas joue
+  scoreFor     Int?
+  scoreAgainst Int?
+  notes        String?    @db.Text
+
+  @@index([teamId, kickoff])
+}
+
+// =====================================================================
+//  ACTUALITES
+// =====================================================================
+
+model News {
+  id          String    @id @default(cuid())
+  title       String
+  slug        String    @unique
+  tag         String    @default("Club")
+  excerpt     String    @db.Text
+  body        String?   @db.Text
+  image       String?
+  publishedAt DateTime  @default(now())
+  published   Boolean   @default(true)
+
+  @@index([publishedAt])
+}
