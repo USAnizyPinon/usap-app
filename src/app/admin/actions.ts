@@ -454,3 +454,69 @@ export async function supprimerStaff(fd: FormData) {
   if (st.photo) await deletePhoto(st.photo).catch(() => {});
   refreshAll();
 }
+
+/* ==========================================================
+   IMPORT DU CALENDRIER FOOTCLUBS
+   ========================================================== */
+
+export type MatchAImporter = {
+  kickoff: string; // date au format ISO
+  opponent: string;
+  home: boolean;
+  competition: Competition;
+  venue: string | null;
+};
+
+/**
+ * Cree les matchs d'une categorie a partir de l'extraction Footclubs.
+ * Les rencontres deja enregistrees sont ignorees (meme date, meme adversaire).
+ */
+export async function importerCalendrier(
+  teamId: string,
+  matchs: MatchAImporter[]
+): Promise<Etat> {
+  try {
+    await requireEditor();
+    if (!teamId) return { ok: false, message: "Choisissez une catégorie." };
+    if (matchs.length === 0) return { ok: false, message: "Aucun match à importer." };
+
+    const existants = await prisma.match.findMany({
+      where: { teamId },
+      select: { kickoff: true, opponent: true },
+    });
+
+    // Deux matchs sont identiques s'ils tombent le meme jour contre le meme adversaire
+    const cle = (d: Date, adv: string) =>
+      `${d.toISOString().slice(0, 10)}|${adv.toLowerCase().trim()}`;
+    const deja = new Set(existants.map((e) => cle(e.kickoff, e.opponent)));
+
+    const aCreer = matchs.filter((m) => !deja.has(cle(new Date(m.kickoff), m.opponent)));
+
+    if (aCreer.length === 0) {
+      return { ok: true, message: "Tous ces matchs étaient déjà enregistrés." };
+    }
+
+    await prisma.match.createMany({
+      data: aCreer.map((m) => ({
+        teamId,
+        opponent: m.opponent,
+        kickoff: new Date(m.kickoff),
+        home: m.home,
+        competition: m.competition,
+        venue: m.venue,
+      })),
+    });
+
+    refreshAll();
+
+    const ignores = matchs.length - aCreer.length;
+    return {
+      ok: true,
+      message:
+        `${aCreer.length} match(s) importé(s).` +
+        (ignores > 0 ? ` ${ignores} déjà présent(s), ignoré(s).` : ""),
+    };
+  } catch {
+    return { ok: false, message: "Import impossible. Vérifiez vos droits." };
+  }
+}
