@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
-export const dynamic = "force-dynamic";
+// Page mise en cache : affichage instantane.
+// Toute modification par un dirigeant rafraichit la page aussitot.
+export const revalidate = 300;
 export const metadata = { title: "Équipes" };
 
 export default async function EquipesPage() {

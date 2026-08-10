@@ -63,14 +63,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <Link href="/club" className="hover:text-jaune">
                   Le club
                 </Link>
-                <a
-                  href="https://usanizypinon.fr"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-jaune"
-                >
-                  Site du club
-                </a>
               </nav>
             </div>
           </footer>

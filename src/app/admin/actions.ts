@@ -334,3 +334,96 @@ export async function ajouterMembreBureau(
     return { ok: false, message: "Ajout impossible." };
   }
 }
+
+export async function modifierMembreBureau(_prev: Etat | null, fd: FormData): Promise<Etat> {
+  try {
+    await requireEditor();
+    const firstName = str(fd, "firstName");
+    const role = str(fd, "role");
+    if (!firstName || !role) {
+      return { ok: false, message: "Prénom et fonction sont obligatoires." };
+    }
+
+    await prisma.boardMember.update({
+      where: { id: str(fd, "memberId") },
+      data: {
+        firstName,
+        lastName: str(fd, "lastName"),
+        role,
+        group: (str(fd, "group") || "BUREAU") as BoardGroup,
+        photo: str(fd, "photo") || null,
+        order: num(fd, "order") ?? 0,
+      },
+    });
+
+    refreshAll();
+    return { ok: true, message: "Membre modifié." };
+  } catch {
+    return { ok: false, message: "Modification impossible." };
+  }
+}
+
+export async function supprimerMembreBureau(fd: FormData) {
+  await requireEditor();
+  const m = await prisma.boardMember.delete({ where: { id: str(fd, "memberId") } });
+  if (m.photo) await deletePhoto(m.photo).catch(() => {});
+  refreshAll();
+}
+
+/* ==========================================================
+   ENCADREMENT (educateurs / entraineurs)
+   ========================================================== */
+
+export async function ajouterStaff(_prev: Etat | null, fd: FormData): Promise<Etat> {
+  try {
+    await requireEditor();
+    const firstName = str(fd, "firstName");
+    if (!firstName) return { ok: false, message: "Le prénom est obligatoire." };
+
+    await prisma.staff.create({
+      data: {
+        firstName,
+        lastName: str(fd, "lastName"),
+        role: str(fd, "role") || "Éducateur",
+        teamId: str(fd, "teamId") || null,
+        photo: str(fd, "photo") || null,
+      },
+    });
+
+    refreshAll();
+    return { ok: true, message: `${firstName} ajouté à l'encadrement.` };
+  } catch {
+    return { ok: false, message: "Ajout impossible." };
+  }
+}
+
+export async function modifierStaff(_prev: Etat | null, fd: FormData): Promise<Etat> {
+  try {
+    await requireEditor();
+    const firstName = str(fd, "firstName");
+    if (!firstName) return { ok: false, message: "Le prénom est obligatoire." };
+
+    await prisma.staff.update({
+      where: { id: str(fd, "staffId") },
+      data: {
+        firstName,
+        lastName: str(fd, "lastName"),
+        role: str(fd, "role") || "Éducateur",
+        teamId: str(fd, "teamId") || null,
+        photo: str(fd, "photo") || null,
+      },
+    });
+
+    refreshAll();
+    return { ok: true, message: "Encadrant modifié." };
+  } catch {
+    return { ok: false, message: "Modification impossible." };
+  }
+}
+
+export async function supprimerStaff(fd: FormData) {
+  await requireEditor();
+  const st = await prisma.staff.delete({ where: { id: str(fd, "staffId") } });
+  if (st.photo) await deletePhoto(st.photo).catch(() => {});
+  refreshAll();
+}

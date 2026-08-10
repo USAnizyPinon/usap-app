@@ -1,7 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import PersonCard from "@/components/PersonCard";
 
-export const dynamic = "force-dynamic";
+// Page mise en cache : affichage instantane.
+// Toute modification par un dirigeant rafraichit la page aussitot.
+export const revalidate = 600;
 export const metadata = { title: "Le club" };
 
 const GROUPS = [

@@ -4,8 +4,9 @@ import MatchCard from "@/components/MatchCard";
 import { formatDate } from "@/lib/format";
 import SportCoricoCard from "@/components/SportCoricoCard";
 
-// Les donnees changent souvent : on ne met pas la page en cache.
-export const dynamic = "force-dynamic";
+// Page mise en cache : affichage instantane.
+// Toute modification par un dirigeant rafraichit la page aussitot.
+export const revalidate = 120;
 
 export default async function HomePage() {
   const now = new Date();
