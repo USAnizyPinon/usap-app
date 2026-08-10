@@ -48,6 +48,10 @@ export default function ScoreForm({
           />
         </div>
         <SubmitButton className="btn-ghost !py-2">Enregistrer</SubmitButton>
+        <label className="flex cursor-pointer items-center gap-2 pb-2">
+          <input type="checkbox" name="notifier" defaultChecked className="h-4 w-4 accent-jaune" />
+          <span className="text-xs text-cream/60">Prévenir</span>
+        </label>
       </form>
       <FormMessage state={state} />
     </div>

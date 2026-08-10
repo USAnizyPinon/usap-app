@@ -45,7 +45,7 @@ export default async function EvenementsPage() {
                     src={e.image}
                     alt=""
                     loading="lazy"
-                    className="-mx-5 -mt-5 mb-5 h-48 w-[calc(100%+2.5rem)] object-cover"
+                    className="-mx-5 -mt-5 mb-5 aspect-video w-[calc(100%+2.5rem)] object-cover"
                   />
                 )}
 

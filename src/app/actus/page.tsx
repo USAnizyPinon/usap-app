@@ -31,7 +31,7 @@ export default async function ActusPage() {
                   src={a.image}
                   alt=""
                   loading="lazy"
-                  className="mb-4 h-44 w-full rounded-xl object-cover sm:mb-0 sm:h-32 sm:w-48 sm:shrink-0"
+                  className="mb-4 aspect-video w-full rounded-xl object-cover sm:mb-0 sm:w-48 sm:shrink-0"
                 />
               )}
               <div>

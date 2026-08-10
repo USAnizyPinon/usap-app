@@ -30,8 +30,10 @@ model User {
   createdAt     DateTime  @default(now())
 
   // Preferences de notification
-  notifyMatches Boolean @default(true)
-  notifyNews    Boolean @default(true)
+  notifyMatches Boolean @default(true) // prochains matchs de mes categories
+  notifyResults Boolean @default(true) // resultats de mes categories
+  notifyNews    Boolean @default(true) // actualites du club
+  notifyEvents  Boolean @default(true) // evenements (loto, tournoi...)
 
   supporter Boolean @default(false)
 
@@ -259,13 +261,16 @@ enum PartnerTier {
 }
 
 model Partner {
-  id       String      @id @default(cuid())
-  name     String
-  logo     String?
-  website  String?
-  tier     PartnerTier @default(OFFICIEL)
-  order    Int         @default(0)
-  visible  Boolean     @default(true)
+  id          String      @id @default(cuid())
+  name        String
+  slug        String      @unique
+  logo        String?
+  website     String?
+  description String?     @db.Text
+  address     String? // sert a afficher la carte
+  tier        PartnerTier @default(OFFICIEL)
+  order       Int         @default(0)
+  visible     Boolean     @default(true)
 }
 
 // =====================================================================

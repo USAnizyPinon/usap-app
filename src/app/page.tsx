@@ -170,7 +170,7 @@ export default async function HomePage() {
                     src={e.image}
                     alt=""
                     loading="lazy"
-                    className="-mx-5 -mt-5 mb-4 h-32 w-[calc(100%+2.5rem)] object-cover"
+                    className="-mx-5 -mt-5 mb-4 aspect-video w-[calc(100%+2.5rem)] object-cover"
                   />
                 )}
                 <p className="font-display text-lg font-black uppercase leading-tight group-hover:text-jaune">

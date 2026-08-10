@@ -33,6 +33,14 @@ export default function PartnerForm() {
           <input id="order" name="order" type="number" className="input" defaultValue={0} />
         </div>
         <div className="sm:col-span-2 lg:col-span-4">
+          <label className="label">Description (fiche du partenaire)</label>
+          <textarea name="description" rows={3} className="input"  />
+        </div>
+        <div className="sm:col-span-2 lg:col-span-4">
+          <label className="label">Adresse (pour la carte)</label>
+          <input name="address" className="input" placeholder="Intermarché, Anizy-le-Grand"  />
+        </div>
+        <div className="sm:col-span-2 lg:col-span-4">
           <PhotoField name="logo" ratio="carre" label="Logo du partenaire" />
         </div>
       </div>

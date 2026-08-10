@@ -163,8 +163,12 @@ export default async function MonEspacePage() {
         <PreferencesForm
           teams={teams.map((t) => ({ id: t.id, name: t.name }))}
           favoris={favoris}
-          notifyMatches={me?.notifyMatches ?? true}
-          notifyNews={me?.notifyNews ?? true}
+          reglages={{
+            notifyMatches: me?.notifyMatches ?? true,
+            notifyResults: me?.notifyResults ?? true,
+            notifyNews: me?.notifyNews ?? true,
+            notifyEvents: me?.notifyEvents ?? true,
+          }}
         />
       </section>
 

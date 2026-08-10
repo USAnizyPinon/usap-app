@@ -36,6 +36,14 @@ export default function EditPartnerForm({ partenaire }: { partenaire: Partner })
           <input name="order" type="number" className="input" defaultValue={partenaire.order} />
         </div>
         <div className="sm:col-span-2 lg:col-span-4">
+          <label className="label">Description (fiche du partenaire)</label>
+          <textarea name="description" rows={3} className="input" defaultValue={partenaire.description ?? ""} />
+        </div>
+        <div className="sm:col-span-2 lg:col-span-4">
+          <label className="label">Adresse (pour la carte)</label>
+          <input name="address" className="input" placeholder="Intermarché, Anizy-le-Grand" defaultValue={partenaire.address ?? ""} />
+        </div>
+        <div className="sm:col-span-2 lg:col-span-4">
           <PhotoField
             name="logo"
             defaultValue={partenaire.logo}

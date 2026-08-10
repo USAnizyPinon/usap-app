@@ -20,7 +20,9 @@ export async function enregistrerPreferences(
     where: { id: session.user.id },
     data: {
       notifyMatches: fd.get("notifyMatches") === "on",
+      notifyResults: fd.get("notifyResults") === "on",
       notifyNews: fd.get("notifyNews") === "on",
+      notifyEvents: fd.get("notifyEvents") === "on",
       favorites: { set: equipes.map((id) => ({ id })) },
     },
   });

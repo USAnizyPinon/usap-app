@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { auth, requireEditor } from "@/lib/auth";
 import { slugify } from "@/lib/format";
 import { deletePhoto } from "@/lib/storage";
-import { destinatairesActu, envoyerNotification } from "@/lib/push";
+import { destinatairesEvenement, envoyerNotification } from "@/lib/push";
 import type { PartnerTier } from "@prisma/client";
 
 type Etat = { ok: boolean; message: string };
@@ -151,11 +151,18 @@ export async function ajouterPartenaire(_prev: Etat | null, fd: FormData): Promi
     const name = str(fd, "name");
     if (!name) return { ok: false, message: "Indiquez le nom du partenaire." };
 
+    const base = slugify(name);
+    const existe = await prisma.partner.count({ where: { slug: base } });
+    const slug = existe > 0 ? `${base}-${Date.now().toString().slice(-4)}` : base;
+
     await prisma.partner.create({
       data: {
         name,
+        slug,
         logo: str(fd, "logo") || null,
         website: str(fd, "website") || null,
+        description: str(fd, "description") || null,
+        address: str(fd, "address") || null,
         tier: (str(fd, "tier") || "OFFICIEL") as PartnerTier,
         order: int(fd, "order"),
       },
@@ -180,6 +187,8 @@ export async function modifierPartenaire(_prev: Etat | null, fd: FormData): Prom
         name,
         logo: str(fd, "logo") || null,
         website: str(fd, "website") || null,
+        description: str(fd, "description") || null,
+        address: str(fd, "address") || null,
         tier: (str(fd, "tier") || "OFFICIEL") as PartnerTier,
         order: int(fd, "order"),
         visible: str(fd, "visible") === "on",
@@ -233,7 +242,7 @@ export async function creerEvenement(_prev: Etat | null, fd: FormData): Promise<
 
     let info = "";
     if (str(fd, "notifier") === "on") {
-      const cibles = await destinatairesActu();
+      const cibles = await destinatairesEvenement();
       const { envoyees } = await envoyerNotification(cibles, {
         title: "US Anizy-Pinon",
         body: `Nouvel événement : ${title}`,

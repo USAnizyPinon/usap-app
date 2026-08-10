@@ -5,7 +5,12 @@ import { prisma } from "@/lib/prisma";
 import { requireEditor } from "@/lib/auth";
 import { slugify, formatDateTime } from "@/lib/format";
 import { deletePhoto } from "@/lib/storage";
-import { destinatairesActu, destinatairesMatch, envoyerNotification } from "@/lib/push";
+import {
+  destinatairesActu,
+  destinatairesMatch,
+  destinatairesResultat,
+  envoyerNotification,
+} from "@/lib/push";
 import type { BoardGroup, Competition } from "@prisma/client";
 
 type Etat = { ok: boolean; message: string };
@@ -94,9 +99,29 @@ export async function enregistrerScore(_prev: Etat | null, fd: FormData): Promis
       return { ok: false, message: "Saisissez les deux scores." };
     }
 
-    await prisma.match.update({ where: { id }, data: { scoreFor, scoreAgainst } });
+    const match = await prisma.match.update({
+      where: { id },
+      data: { scoreFor, scoreAgainst },
+      include: { team: { select: { name: true } } },
+    });
     refreshAll();
-    return { ok: true, message: "Score enregistré." };
+
+    let info = "";
+    if (str(fd, "notifier") === "on") {
+      const cibles = await destinatairesResultat(match.teamId);
+      const verdict =
+        scoreFor > scoreAgainst ? "Victoire" : scoreFor < scoreAgainst ? "Défaite" : "Match nul";
+      const { envoyees } = await envoyerNotification(cibles, {
+        title: `${match.team.name} · ${verdict}`,
+        body: `${match.home ? "USAP" : match.opponent} ${match.home ? scoreFor : scoreAgainst} – ${
+          match.home ? scoreAgainst : scoreFor
+        } ${match.home ? match.opponent : "USAP"}`,
+        url: "/matchs",
+      });
+      info = envoyees > 0 ? ` ${envoyees} personne(s) prévenue(s).` : "";
+    }
+
+    return { ok: true, message: `Score enregistré.${info}` };
   } catch {
     return { ok: false, message: "Enregistrement impossible." };
   }
