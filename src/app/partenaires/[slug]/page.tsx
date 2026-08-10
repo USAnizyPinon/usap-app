@@ -35,12 +35,12 @@ export default async function FichePartenaire({ params }: { params: { slug: stri
 
       <div className="card mt-6">
         {p.logo && (
-          <div className="grid place-items-center rounded-2xl bg-white/95 p-8">
+          <div className="overflow-hidden rounded-2xl bg-white/95 p-8">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={p.logo}
               alt={p.name}
-              className="max-h-32 w-auto max-w-full object-contain"
+              className="mx-auto h-32 w-full object-contain"
             />
           </div>
         )}
