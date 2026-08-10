@@ -88,6 +88,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <Link href="/bureaux" className="hover:text-jaune">
                   Les bureaux
                 </Link>
+                <Link href="/mentions-legales" className="hover:text-jaune">
+                  Mentions légales
+                </Link>
+                <Link href="/confidentialite" className="hover:text-jaune">
+                  Confidentialité
+                </Link>
               </nav>
             </div>
           </footer>

@@ -119,6 +119,13 @@ model Team {
   requests  JoinRequest[]
 }
 
+// Comment le nom d'un joueur apparait publiquement
+enum NameDisplay {
+  COMPLET // Sacha Nowak
+  INITIALE // Sacha N.
+  PRENOM // Sacha
+}
+
 model Player {
   id        String  @id @default(cuid())
   firstName String
@@ -126,6 +133,10 @@ model Player {
   photo     String?
   position  String? // "Gardien", "Milieu"...
   number    Int?
+
+  // Droit a l'image : reglages appliques sur les pages publiques
+  publicPhoto Boolean     @default(true)
+  nameDisplay NameDisplay @default(COMPLET)
 
   teamId String
   team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)

@@ -11,7 +11,7 @@ import {
   destinatairesResultat,
   envoyerNotification,
 } from "@/lib/push";
-import type { BoardGroup, Competition } from "@prisma/client";
+import type { BoardGroup, Competition, NameDisplay } from "@prisma/client";
 
 type Etat = { ok: boolean; message: string };
 
@@ -215,6 +215,8 @@ export async function modifierJoueur(_prev: Etat | null, fd: FormData): Promise<
         position: str(fd, "position") || null,
         number: num(fd, "number"),
         photo: str(fd, "photo") || null,
+        publicPhoto: str(fd, "publicPhoto") === "on",
+        nameDisplay: (str(fd, "nameDisplay") || "COMPLET") as NameDisplay,
       },
     });
 
@@ -519,4 +521,50 @@ export async function importerCalendrier(
   } catch {
     return { ok: false, message: "Import impossible. Vérifiez vos droits." };
   }
+}
+
+/* ==========================================================
+   DROIT A L'IMAGE : reglages pour toute une categorie
+   Pratique pour les equipes de jeunes.
+   ========================================================== */
+
+export async function reglerVisibiliteEquipe(fd: FormData): Promise<void> {
+  await requireEditor();
+  const teamId = str(fd, "teamId");
+  const action = str(fd, "reglage");
+  if (!teamId) return;
+
+  const data: { publicPhoto?: boolean; nameDisplay?: NameDisplay } = {};
+
+  if (action === "photos-off") data.publicPhoto = false;
+  else if (action === "photos-on") data.publicPhoto = true;
+  else if (action === "nom-initiale") data.nameDisplay = "INITIALE";
+  else if (action === "nom-prenom") data.nameDisplay = "PRENOM";
+  else if (action === "nom-complet") data.nameDisplay = "COMPLET";
+  else return;
+
+  await prisma.player.updateMany({ where: { teamId }, data });
+  refreshAll();
+}
+
+/* ==========================================================
+   DROIT A L'IMAGE : reglages par categorie
+   ========================================================== */
+
+/** Applique un mode d'affichage du nom a toute une categorie. */
+export async function appliquerAffichageNom(fd: FormData) {
+  await requireEditor();
+  const teamId = str(fd, "teamId");
+  const mode = (str(fd, "nameDisplay") || "COMPLET") as NameDisplay;
+  await prisma.player.updateMany({ where: { teamId }, data: { nameDisplay: mode } });
+  refreshAll();
+}
+
+/** Masque ou reaffiche toutes les photos d'une categorie. */
+export async function appliquerPhotos(fd: FormData) {
+  await requireEditor();
+  const teamId = str(fd, "teamId");
+  const visible = str(fd, "visible") === "true";
+  await prisma.player.updateMany({ where: { teamId }, data: { publicPhoto: visible } });
+  refreshAll();
 }

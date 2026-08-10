@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import MatchCard from "@/components/MatchCard";
 import PersonCard from "@/components/PersonCard";
+import { nomPublic, photoPublique } from "@/lib/affichage";
 
 // Page mise en cache : affichage instantane.
 // Toute modification par un dirigeant rafraichit la page aussitot.
@@ -63,9 +64,9 @@ export default async function EquipePage({ params }: { params: { slug: string } 
             {team.players.map((p) => (
               <PersonCard
                 key={p.id}
-                name={`${p.firstName} ${p.lastName}`.trim()}
+                name={nomPublic(p)}
                 role={p.position ?? undefined}
-                photo={p.photo}
+                photo={photoPublique(p)}
                 number={p.number}
               />
             ))}
