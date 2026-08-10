@@ -18,9 +18,13 @@ const GROUPS = [
 ];
 
 export default async function ClubPage() {
-  const membres = await prisma.boardMember.findMany({
-    orderBy: [{ order: "asc" }, { lastName: "asc" }],
-  });
+  const [membres, encadrement] = await Promise.all([
+    prisma.boardMember.findMany({ orderBy: [{ order: "asc" }, { lastName: "asc" }] }),
+    prisma.staff.findMany({
+      orderBy: [{ lastName: "asc" }],
+      include: { team: { select: { name: true, order: true } } },
+    }),
+  ]);
 
   return (
     <div className="wrap py-12">
@@ -56,6 +60,30 @@ export default async function ClubPage() {
             </section>
           );
         })
+      )}
+
+      {/* ---------------- ENCADREMENT ---------------- */}
+      {encadrement.length > 0 && (
+        <section className="mt-16">
+          <p className="eyebrow">Sur le terrain</p>
+          <h2 className="mt-3 font-display text-2xl font-black uppercase">
+            Les éducateurs
+          </h2>
+          <p className="mt-2 text-sm text-cream/55">
+            Celles et ceux qui encadrent les équipes chaque semaine.
+          </p>
+
+          <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+            {encadrement.map((e) => (
+              <PersonCard
+                key={e.id}
+                name={`${e.firstName} ${e.lastName}`.trim()}
+                role={e.team ? `${e.role} · ${e.team.name}` : e.role}
+                photo={e.photo}
+              />
+            ))}
+          </div>
+        </section>
       )}
     </div>
   );

@@ -11,7 +11,8 @@ export const revalidate = 120;
 export default async function HomePage() {
   const now = new Date();
 
-  const [prochains, derniers, actus, nbJoueurs, nbEquipes] = await Promise.all([
+  const [prochains, derniers, actus, nbJoueurs, nbEquipes, evenements, partenaires, photos] =
+    await Promise.all([
     prisma.match.findMany({
       where: { kickoff: { gte: now } },
       orderBy: { kickoff: "asc" },
@@ -31,6 +32,17 @@ export default async function HomePage() {
     }),
     prisma.player.count(),
     prisma.team.count(),
+    prisma.event.findMany({
+      where: { published: true, startsAt: { gte: now } },
+      orderBy: { startsAt: "asc" },
+      take: 3,
+    }),
+    prisma.partner.findMany({
+      where: { visible: true, logo: { not: null } },
+      orderBy: [{ order: "asc" }, { name: "asc" }],
+      take: 8,
+    }),
+    prisma.photo.findMany({ orderBy: { createdAt: "desc" }, take: 6 }),
   ]);
 
   return (
@@ -132,6 +144,53 @@ export default async function HomePage() {
         </section>
       )}
 
+      {/* ---------------- EVENEMENTS ---------------- */}
+      {evenements.length > 0 && (
+        <section className="wrap pb-14">
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <p className="eyebrow">À ne pas manquer</p>
+              <h2 className="title mt-3">Prochains événements</h2>
+            </div>
+            <Link href="/evenements" className="hidden text-sm font-bold text-jaune sm:block">
+              Tout voir →
+            </Link>
+          </div>
+
+          <div className="mt-6 grid gap-4 sm:grid-cols-3">
+            {evenements.map((e) => (
+              <Link
+                key={e.id}
+                href="/evenements"
+                className="card group overflow-hidden transition hover:border-jaune/50"
+              >
+                {e.image && (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={e.image}
+                    alt=""
+                    loading="lazy"
+                    className="-mx-5 -mt-5 mb-4 h-32 w-[calc(100%+2.5rem)] object-cover"
+                  />
+                )}
+                <p className="font-display text-lg font-black uppercase leading-tight group-hover:text-jaune">
+                  {e.title}
+                </p>
+                <p className="mt-2 text-sm capitalize text-jaune">
+                  {formatDate(e.startsAt)}
+                </p>
+                {e.place && <p className="mt-1 text-xs text-cream/50">{e.place}</p>}
+                {e.openToSignup && (
+                  <p className="mt-3 text-xs font-bold text-cream/70">
+                    Inscriptions ouvertes →
+                  </p>
+                )}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* ---------------- ACTUS ---------------- */}
       {actus.length > 0 && (
         <section className="wrap pb-14">
@@ -160,6 +219,74 @@ export default async function HomePage() {
                 </p>
               </article>
             ))}
+          </div>
+        </section>
+      )}
+      {/* ---------------- GALERIE ---------------- */}
+      {photos.length > 0 && (
+        <section className="wrap pb-14">
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <p className="eyebrow">En images</p>
+              <h2 className="title mt-3">La galerie</h2>
+            </div>
+            <Link href="/galerie" className="hidden text-sm font-bold text-jaune sm:block">
+              Tout voir →
+            </Link>
+          </div>
+
+          <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+            {photos.map((p) => (
+              <Link
+                key={p.id}
+                href="/galerie"
+                className="group overflow-hidden rounded-xl border border-white/10"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={p.url}
+                  alt={p.caption ?? ""}
+                  loading="lazy"
+                  className="aspect-square w-full object-cover transition duration-500 group-hover:scale-105"
+                />
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ---------------- PARTENAIRES ---------------- */}
+      {partenaires.length > 0 && (
+        <section className="border-t border-white/10 bg-noir-2 py-12">
+          <div className="wrap">
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <p className="eyebrow">Ils font vivre le club</p>
+                <h2 className="mt-3 font-display text-2xl font-black uppercase">
+                  Nos partenaires
+                </h2>
+              </div>
+              <Link
+                href="/partenaires"
+                className="hidden text-sm font-bold text-jaune sm:block"
+              >
+                Tout voir →
+              </Link>
+            </div>
+
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-x-10 gap-y-8">
+              {partenaires.map((p) => (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  key={p.id}
+                  src={p.logo as string}
+                  alt={p.name}
+                  loading="lazy"
+                  title={p.name}
+                  className="h-12 w-auto max-w-[130px] object-contain opacity-70 transition hover:opacity-100"
+                />
+              ))}
+            </div>
           </div>
         </section>
       )}

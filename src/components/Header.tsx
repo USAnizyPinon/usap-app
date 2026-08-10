@@ -13,7 +13,7 @@ const LINKS = [
   { href: "/actus", label: "Actus" },
   { href: "/galerie", label: "Galerie" },
   { href: "/partenaires", label: "Partenaires" },
-  { href: "/bureaux", label: "Les bureaux" },
+  { href: "/bureaux", label: "Bureaux" },
 ];
 
 /**
@@ -47,12 +47,12 @@ export default function Header() {
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-1 lg:flex">
-          {links.slice(0, 5).map((l) => (
+        <nav className="hidden items-center gap-0.5 xl:flex">
+          {links.map((l) => (
             <Link
               key={l.href}
               href={l.href}
-              className="rounded-full px-3 py-2 text-sm font-semibold text-cream/75 transition hover:bg-white/5 hover:text-jaune"
+              className="whitespace-nowrap rounded-full px-2.5 py-2 text-[13px] font-semibold text-cream/75 transition hover:bg-white/5 hover:text-jaune"
             >
               {l.label}
             </Link>
