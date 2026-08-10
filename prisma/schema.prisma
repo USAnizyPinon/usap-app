@@ -33,9 +33,13 @@ model User {
   notifyMatches Boolean @default(true)
   notifyNews    Boolean @default(true)
 
+  supporter Boolean @default(false)
+
   accounts      Account[]
   sessions      Session[]
   registrations Registration[]
+  player        Player?
+  joinRequest   JoinRequest?
   favorites     Team[]             @relation("UserFavorites")
   subscriptions PushSubscription[]
 }
@@ -110,6 +114,7 @@ model Team {
   favoredBy User[]        @relation("UserFavorites")
   standing  StandingRow[]
   photos    Photo[]
+  requests  JoinRequest[]
 }
 
 model Player {
@@ -122,6 +127,10 @@ model Player {
 
   teamId String
   team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  // Compte Google du joueur, s'il en a un
+  userId String? @unique
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([teamId])
 }
@@ -291,4 +300,37 @@ model Registration {
   createdAt DateTime @default(now())
 
   @@unique([eventId, userId])
+}
+
+// =====================================================================
+//  DEMANDES POUR REJOINDRE LE CLUB
+//  Le licencie remplit sa fiche, un dirigeant valide.
+// =====================================================================
+
+enum RequestStatus {
+  EN_ATTENTE
+  ACCEPTEE
+  REFUSEE
+}
+
+model JoinRequest {
+  id        String @id @default(cuid())
+  userId    String @unique
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  firstName String
+  lastName  String        @default("")
+  photo     String?
+  // Soit une categorie de jeu, soit supporter
+  teamId    String?
+  team      Team?         @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  supporter Boolean       @default(false)
+  message   String?
+
+  status    RequestStatus @default(EN_ATTENTE)
+  reason    String?
+  createdAt DateTime      @default(now())
+  decidedAt DateTime?
+
+  @@index([status, createdAt])
 }
