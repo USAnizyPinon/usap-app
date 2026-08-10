@@ -72,8 +72,11 @@ export default function ConfidentialitePage() {
           <p className="mt-2">
             Conformément au règlement général sur la protection des données, vous pouvez
             demander l&apos;accès à vos données, leur correction, leur suppression, ou vous
-            opposer à leur traitement. Écrivez à l&apos;adresse de contact indiquée dans
-            les mentions légales. Vous pouvez également saisir la CNIL.
+            opposer à leur traitement. Écrivez à{" "}
+            <a href="mailto:usanizypinon1@gmail.com" className="underline hover:text-jaune">
+              usanizypinon1@gmail.com
+            </a>
+            . Vous pouvez également saisir la CNIL.
           </p>
         </section>
 
@@ -84,8 +87,11 @@ export default function ConfidentialitePage() {
           <p className="mt-2">
             Aucune photo de licencié mineur n&apos;est publiée sans l&apos;accord écrit de
             ses représentants légaux. Le club peut à tout moment masquer une photo ou
-            n&apos;afficher qu&apos;un prénom. Pour toute demande de retrait, contactez le
-            club : elle sera traitée sans délai.
+            n&apos;afficher qu&apos;un prénom. Pour toute demande de retrait, écrivez à{" "}
+            <a href="mailto:usanizypinon1@gmail.com" className="underline hover:text-jaune">
+              usanizypinon1@gmail.com
+            </a>{" "}
+            : elle sera traitée sans délai.
           </p>
         </section>
 

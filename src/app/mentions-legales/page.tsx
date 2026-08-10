@@ -1,9 +1,5 @@
 export const metadata = { title: "Mentions légales" };
 
-/**
- * À COMPLÉTER par le club : les mentions entre crochets doivent être
- * remplacées par les informations officielles de l'association.
- */
 export default function MentionsLegalesPage() {
   return (
     <div className="wrap max-w-3xl py-12">
@@ -18,11 +14,19 @@ export default function MentionsLegalesPage() {
             association sportive régie par la loi du 1<sup>er</sup> juillet 1901.
           </p>
           <ul className="mt-3 space-y-1">
-            <li>Siège social : [adresse du siège de l&apos;association]</li>
-            <li>Numéro RNA ou SIRET : [à compléter]</li>
-            <li>Numéro d&apos;affiliation FFF : [à compléter]</li>
-            <li>Adresse électronique : [adresse de contact du club]</li>
-            <li>Directeur de la publication : [président ou présidente du club]</li>
+            <li>Siège social : Mairie, 02320 Anizy-le-Grand</li>
+            <li>SIRET : 780 159 687 00018</li>
+            <li>Numéro d&apos;affiliation FFF : 502704</li>
+            <li>
+              Adresse électronique :{" "}
+              <a
+                href="mailto:usanizypinon1@gmail.com"
+                className="underline hover:text-jaune"
+              >
+                usanizypinon1@gmail.com
+              </a>
+            </li>
+            <li>Directrice de la publication : Lydie Broyart, présidente</li>
           </ul>
         </section>
 
@@ -56,7 +60,10 @@ export default function MentionsLegalesPage() {
           <p className="mt-2">
             Les photographies de licenciés sont publiées après accord de la personne
             concernée ou, pour les mineurs, de leurs représentants légaux. Toute demande de
-            retrait est traitée sans délai : écrivez à l&apos;adresse de contact ci-dessus
+            retrait est traitée sans délai : écrivez à{" "}
+            <a href="mailto:usanizypinon1@gmail.com" className="underline hover:text-jaune">
+              usanizypinon1@gmail.com
+            </a>{" "}
             en précisant la photo concernée.
           </p>
         </section>

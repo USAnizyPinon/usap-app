@@ -4,6 +4,7 @@ import Link from "next/link";
 import "./globals.css";
 import Header from "@/components/Header";
 import Providers from "@/components/Providers";
+import InstallBanner from "@/components/InstallBanner";
 
 const display = Playfair_Display({
   subsets: ["latin"],
@@ -54,6 +55,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Providers>
           <Header />
           <main className="flex-1">{children}</main>
+          <InstallBanner />
 
           <footer className="mt-20 border-t border-white/10 bg-noir-2">
             <div className="wrap flex flex-col gap-4 py-10 sm:flex-row sm:items-center sm:justify-between">
