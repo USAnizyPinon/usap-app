@@ -165,8 +165,9 @@ model Match {
   id          String      @id @default(cuid())
   teamId      String
   team        Team        @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  kickoff     DateTime
-  opponent    String
+  kickoff      DateTime
+  opponent     String
+  opponentLogo String?
   home        Boolean     @default(true)
   competition Competition @default(CHAMPIONNAT)
   venue       String?
