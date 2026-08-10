@@ -80,10 +80,32 @@ export async function destinatairesMatch(teamId: string) {
   return users.map((u) => u.id);
 }
 
-/** Comptes a prevenir pour une actualite : tous ceux qui les acceptent. */
+/** Comptes a prevenir pour un resultat : ceux qui suivent cette categorie. */
+export async function destinatairesResultat(teamId: string) {
+  const users = await prisma.user.findMany({
+    where: {
+      notifyResults: true,
+      subscriptions: { some: {} },
+      favorites: { some: { id: teamId } },
+    },
+    select: { id: true },
+  });
+  return users.map((u) => u.id);
+}
+
+/** Comptes a prevenir pour une actualite. */
 export async function destinatairesActu() {
   const users = await prisma.user.findMany({
     where: { notifyNews: true, subscriptions: { some: {} } },
+    select: { id: true },
+  });
+  return users.map((u) => u.id);
+}
+
+/** Comptes a prevenir pour un evenement du club. */
+export async function destinatairesEvenement() {
+  const users = await prisma.user.findMany({
+    where: { notifyEvents: true, subscriptions: { some: {} } },
     select: { id: true },
   });
   return users.map((u) => u.id);
