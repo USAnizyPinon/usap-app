@@ -9,7 +9,11 @@ const TABS = [
   { href: "/admin/matchs", label: "Matchs" },
   { href: "/admin/effectif", label: "Effectifs" },
   { href: "/admin/actus", label: "Actualités" },
-  { href: "/admin/club", label: "Bureau & staff" },
+  { href: "/admin/classement", label: "Classement" },
+  { href: "/admin/evenements", label: "Événements" },
+  { href: "/admin/galerie", label: "Galerie" },
+  { href: "/admin/partenaires", label: "Partenaires" },
+  { href: "/admin/club", label: "Bureaux & staff" },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {

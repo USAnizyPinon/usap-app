@@ -7,9 +7,13 @@ import UserMenu from "./UserMenu";
 
 const LINKS = [
   { href: "/matchs", label: "Matchs" },
+  { href: "/classement", label: "Classement" },
   { href: "/equipes", label: "Équipes" },
+  { href: "/evenements", label: "Événements" },
   { href: "/actus", label: "Actus" },
-  { href: "/club", label: "Le club" },
+  { href: "/galerie", label: "Galerie" },
+  { href: "/partenaires", label: "Partenaires" },
+  { href: "/bureaux", label: "Les bureaux" },
 ];
 
 /**
@@ -43,8 +47,8 @@ export default function Header() {
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-1 md:flex">
-          {links.map((l) => (
+        <nav className="hidden items-center gap-1 lg:flex">
+          {links.slice(0, 5).map((l) => (
             <Link
               key={l.href}
               href={l.href}
@@ -61,6 +65,7 @@ export default function Header() {
             image={session?.user?.image ?? null}
             role={role ?? null}
           />
+          {/* Le menu complet reste accessible partout */}
           <MobileNav links={links} />
         </div>
       </div>

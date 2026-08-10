@@ -73,8 +73,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <Link href="/actus" className="hover:text-jaune">
                   Actus
                 </Link>
-                <Link href="/club" className="hover:text-jaune">
-                  Le club
+                <Link href="/classement" className="hover:text-jaune">
+                  Classement
+                </Link>
+                <Link href="/evenements" className="hover:text-jaune">
+                  Événements
+                </Link>
+                <Link href="/galerie" className="hover:text-jaune">
+                  Galerie
+                </Link>
+                <Link href="/partenaires" className="hover:text-jaune">
+                  Partenaires
+                </Link>
+                <Link href="/bureaux" className="hover:text-jaune">
+                  Les bureaux
                 </Link>
               </nav>
             </div>

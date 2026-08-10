@@ -35,6 +35,7 @@ model User {
 
   accounts      Account[]
   sessions      Session[]
+  registrations Registration[]
   favorites     Team[]             @relation("UserFavorites")
   subscriptions PushSubscription[]
 }
@@ -106,7 +107,9 @@ model Team {
   players   Player[]
   staff     Staff[]
   matches   Match[]
-  favoredBy User[]   @relation("UserFavorites")
+  favoredBy User[]        @relation("UserFavorites")
+  standing  StandingRow[]
+  photos    Photo[]
 }
 
 model Player {
@@ -135,7 +138,8 @@ model Staff {
 }
 
 enum BoardGroup {
-  BUREAU
+  BUREAU // bureau directeur
+  ANIMATION // bureau d'animation
   RESPONSABLE
   COMITE
 }
@@ -195,4 +199,96 @@ model News {
   published   Boolean   @default(true)
 
   @@index([publishedAt])
+}
+
+// =====================================================================
+//  CLASSEMENT — saisi par les dirigeants, une ligne par club
+// =====================================================================
+
+model StandingRow {
+  id       String  @id @default(cuid())
+  teamId   String
+  team     Team    @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  position Int
+  clubName String
+  isUsap   Boolean @default(false)
+
+  played       Int @default(0)
+  won          Int @default(0)
+  drawn        Int @default(0)
+  lost         Int @default(0)
+  goalsFor     Int @default(0)
+  goalsAgainst Int @default(0)
+
+  @@index([teamId, position])
+}
+
+// =====================================================================
+//  GALERIE PHOTOS
+// =====================================================================
+
+model Photo {
+  id        String   @id @default(cuid())
+  url       String
+  caption   String?
+  season    String   @default("2025/2026")
+  teamId    String?
+  team      Team?    @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now())
+
+  @@index([season, createdAt])
+}
+
+// =====================================================================
+//  PARTENAIRES
+// =====================================================================
+
+enum PartnerTier {
+  PRINCIPAL
+  OFFICIEL
+  SUPPORTER
+}
+
+model Partner {
+  id       String      @id @default(cuid())
+  name     String
+  logo     String?
+  website  String?
+  tier     PartnerTier @default(OFFICIEL)
+  order    Int         @default(0)
+  visible  Boolean     @default(true)
+}
+
+// =====================================================================
+//  EVENEMENTS DU CLUB (loto, tournoi, assemblee generale...)
+// =====================================================================
+
+model Event {
+  id           String   @id @default(cuid())
+  title        String
+  slug         String   @unique
+  description  String?  @db.Text
+  startsAt     DateTime
+  place        String?
+  image        String?
+  openToSignup Boolean  @default(true)
+  capacity     Int? // laisser vide = pas de limite
+  published    Boolean  @default(true)
+
+  registrations Registration[]
+
+  @@index([startsAt])
+}
+
+model Registration {
+  id        String   @id @default(cuid())
+  eventId   String
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  people    Int      @default(1)
+  comment   String?
+  createdAt DateTime @default(now())
+
+  @@unique([eventId, userId])
 }
