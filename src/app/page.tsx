@@ -65,15 +65,26 @@ export default async function HomePage() {
             alt="US Anizy-Pinon"
             className="mb-6 h-24 w-auto animate-rise drop-shadow-[0_10px_30px_rgba(0,0,0,.6)] sm:h-28"
           />
-          <p className="eyebrow animate-rise">Saison 2025 / 2026</p>
+          <p className="eyebrow animate-rise">Application officielle du club</p>
+
+          {/* Le nom exact du club : identique a celui declare pour la connexion Google */}
           <h1 className="title mt-4 animate-rise text-4xl sm:text-6xl">
-            Le club
-            <br />
-            dans votre <span className="text-jaune">poche</span>
+            US Anizy <span className="text-jaune">Pinon</span>
           </h1>
-          <p className="mt-5 max-w-xl animate-rise text-cream/70">
-            Les matchs de toutes les catégories, les effectifs et les actualités de
-            l&apos;US Anizy-Pinon, mis à jour par les dirigeants du club.
+          <p className="mt-3 animate-rise font-display text-xl font-black uppercase text-cream/60 sm:text-2xl">
+            Le club dans votre poche
+          </p>
+
+          <p className="mt-5 max-w-2xl animate-rise text-cream/70">
+            L&apos;application de l&apos;US Anizy Pinon, club de football amateur des
+            communes d&apos;Anizy-le-Grand et de Pinon. Consultez le calendrier des matchs
+            de toutes les catégories, les résultats, le classement, les effectifs, les
+            actualités et les événements du club.
+          </p>
+          <p className="mt-3 max-w-2xl animate-rise text-sm text-cream/50">
+            La connexion avec Google est facultative : elle sert à recevoir les
+            notifications des catégories que vous suivez, à vous inscrire aux événements
+            et, pour les dirigeants, à mettre à jour le contenu du club.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">

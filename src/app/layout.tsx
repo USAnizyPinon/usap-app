@@ -22,11 +22,11 @@ const sans = Montserrat({
 
 export const metadata: Metadata = {
   title: {
-    default: "US Anizy-Pinon",
+    default: "US Anizy Pinon",
     template: "%s · US Anizy-Pinon",
   },
   description:
-    "L'application du club de l'US Anizy-Pinon : matchs, équipes, effectifs et actualités.",
+    "Application officielle de l'US Anizy Pinon, club de football amateur d'Anizy-le-Grand et Pinon : calendrier des matchs, résultats, classement, effectifs, actualités et événements du club.",
   manifest: "/manifest.json",
   appleWebApp: { capable: true, title: "USAP", statusBarStyle: "black-translucent" },
   icons: {
@@ -37,8 +37,9 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png",
   },
   openGraph: {
-    title: "US Anizy-Pinon",
-    description: "Matchs, équipes, effectifs et actualités du club.",
+    title: "US Anizy Pinon",
+    description:
+      "Calendrier, résultats, classement, effectifs et actualités de l'US Anizy Pinon.",
     images: ["/og-image.png"],
     type: "website",
   },
