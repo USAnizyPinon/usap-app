@@ -20,7 +20,10 @@ const sans = Montserrat({
   display: "swap",
 });
 
+const SITE = "https://app.usanizypinon.fr";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE),
   title: {
     default: "US Anizy Pinon",
     template: "%s · US Anizy Pinon",
@@ -37,11 +40,20 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png",
   },
   openGraph: {
+    type: "website",
+    locale: "fr_FR",
+    siteName: "US Anizy Pinon",
+    url: SITE,
     title: "US Anizy Pinon",
     description:
       "Calendrier, résultats, classement, effectifs et actualités de l'US Anizy Pinon.",
+    images: [{ url: "/og-image.png", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "US Anizy Pinon",
+    description: "Calendrier, résultats, classement et actualités du club.",
     images: ["/og-image.png"],
-    type: "website",
   },
 };
 
@@ -87,6 +99,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 </Link>
                 <Link href="/partenaires" className="hover:text-jaune">
                   Partenaires
+                </Link>
+                <Link href="/nous-rejoindre" className="hover:text-jaune">
+                  Nous rejoindre
                 </Link>
                 <Link href="/bureaux" className="hover:text-jaune">
                   Les bureaux

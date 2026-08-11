@@ -12,7 +12,8 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
     "db:partners": "tsx prisma/seed-partners.ts",
-    "db:classement": "tsx prisma/seed-classement.ts"
+    "db:classement": "tsx prisma/seed-classement.ts",
+    "db:creneaux": "tsx prisma/seed-creneaux.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

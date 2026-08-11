@@ -110,6 +110,14 @@ model Team {
   description String? @db.Text
   photo       String?
 
+  // Informations pour rejoindre le club
+  birthYears  String? // "2014-2015"
+  trainDays   String? // "Mardi & Jeudi"
+  trainHours  String? // "17h30-19h"
+  restartDate String? // "Mardi 18 août"
+  contactName String?
+  contactTel  String? // visible seulement pour les personnes connectées
+
   players   Player[]
   staff     Staff[]
   matches   Match[]

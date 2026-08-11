@@ -5,15 +5,21 @@ import { useSession } from "next-auth/react";
 import MobileNav from "./MobileNav";
 import UserMenu from "./UserMenu";
 
+// Barre principale : ce qu'on consulte le plus souvent
 const LINKS = [
   { href: "/matchs", label: "Matchs" },
   { href: "/classement", label: "Classement" },
   { href: "/equipes", label: "Équipes" },
-  { href: "/evenements", label: "Événements" },
   { href: "/actus", label: "Actus" },
+  { href: "/evenements", label: "Événements" },
+  { href: "/nous-rejoindre", label: "Nous rejoindre" },
+];
+
+// Regroupé sous « Le club » pour alléger la barre
+const CLUB = [
   { href: "/galerie", label: "Galerie" },
   { href: "/partenaires", label: "Partenaires" },
-  { href: "/bureaux", label: "Bureaux" },
+  { href: "/bureaux", label: "Les bureaux" },
 ];
 
 /**
@@ -25,11 +31,13 @@ export default function Header() {
   const role = session?.user?.role;
   const editor = role === "ADMIN" || role === "DIRIGEANT";
 
-  const links = [
-    ...LINKS,
+  const suite = [
     ...(session ? [{ href: "/mon-espace", label: "Mon compte" }] : []),
     ...(editor ? [{ href: "/admin", label: "Admin" }] : []),
   ];
+
+  // Le menu déroulant reprend tout, pour ne rien rendre inaccessible
+  const links = [...LINKS, ...CLUB, ...suite];
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-noir/90 backdrop-blur">

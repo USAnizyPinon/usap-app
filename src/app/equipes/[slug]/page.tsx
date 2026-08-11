@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import MatchCard from "@/components/MatchCard";
@@ -32,6 +33,45 @@ export default async function EquipePage({ params }: { params: { slug: string } 
       </p>
       {team.description && (
         <p className="mt-5 max-w-2xl text-cream/70">{team.description}</p>
+      )}
+
+      {(team.trainDays || team.restartDate) && (
+        <div className="card mt-8 max-w-2xl">
+          <p className="eyebrow">Entraînements</p>
+          <dl className="mt-4 grid gap-4 sm:grid-cols-3">
+            {team.trainDays && (
+              <div>
+                <dt className="text-[11px] uppercase tracking-wider text-cream/45">
+                  Quand
+                </dt>
+                <dd className="mt-1 font-semibold">
+                  {team.trainDays}
+                  {team.trainHours ? ` · ${team.trainHours}` : ""}
+                </dd>
+              </div>
+            )}
+            {team.venue && (
+              <div>
+                <dt className="text-[11px] uppercase tracking-wider text-cream/45">Où</dt>
+                <dd className="mt-1 font-semibold">{team.venue}</dd>
+              </div>
+            )}
+            {team.birthYears && (
+              <div>
+                <dt className="text-[11px] uppercase tracking-wider text-cream/45">
+                  Années
+                </dt>
+                <dd className="mt-1 font-semibold">{team.birthYears}</dd>
+              </div>
+            )}
+          </dl>
+          <Link
+            href="/nous-rejoindre"
+            className="mt-4 inline-block text-sm font-bold text-jaune hover:underline"
+          >
+            Venir à l&apos;essai →
+          </Link>
+        </div>
       )}
 
       {team.staff.length > 0 && (
