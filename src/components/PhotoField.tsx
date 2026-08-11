@@ -12,6 +12,8 @@ type Props = {
   /** portrait = 3/4 (joueurs) · paysage = 16/9 (actus) · carre = logos d'equipe */
   ratio?: "portrait" | "paysage" | "carre";
   label?: string;
+  /** "demande" autorise un licencie a joindre sa propre photo. */
+  usage?: string;
 };
 
 const SIZES = {
@@ -31,6 +33,7 @@ export default function PhotoField({
   prefix = "photo",
   ratio = "portrait",
   label = "Photo",
+  usage,
 }: Props) {
   const [url, setUrl] = useState<string>(defaultValue ?? "");
   const [busy, setBusy] = useState(false);
@@ -69,7 +72,21 @@ export default function PhotoField({
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("Recadrage impossible sur cet appareil.");
     ctx.imageSmoothingQuality = "high";
-    ctx.drawImage(bitmap, sx, sy, sw, sh, 0, 0, w, h);
+
+    // Une image bien plus haute que le cadre (affiche, flyer) serait
+    // massacrée par un recadrage : on la place entière sur un fond neutre.
+    const tropHaute = ratio !== "portrait" && source < cible * 0.75;
+
+    if (tropHaute) {
+      ctx.fillStyle = "#0c0c0d";
+      ctx.fillRect(0, 0, w, h);
+      const facteur = Math.min(w / bitmap.width, h / bitmap.height);
+      const lg = bitmap.width * facteur;
+      const ht = bitmap.height * facteur;
+      ctx.drawImage(bitmap, (w - lg) / 2, (h - ht) / 2, lg, ht);
+    } else {
+      ctx.drawImage(bitmap, sx, sy, sw, sh, 0, 0, w, h);
+    }
 
     // Un logo garde sa transparence : on reste en PNG.
     const png = file.type === "image/png" || ratio === "carre";
@@ -96,6 +113,7 @@ export default function PhotoField({
       const fd = new FormData();
       fd.append("file", new File([blob], `photo.${ext}`, { type }));
       fd.append("prefix", prefix);
+      if (usage) fd.append("usage", usage);
 
       const res = await fetch("/api/upload", { method: "POST", body: fd });
       const data = await res.json();
@@ -175,8 +193,9 @@ export default function PhotoField({
 
       <p className="mt-2 text-[11px] text-cream/40">
         JPG ou PNG. Recadrage automatique en{" "}
-        {ratio === "portrait" ? "portrait" : ratio === "carre" ? "carré" : "paysage"} :
-        choisissez l&apos;image dans votre galerie ou prenez-la avec l&apos;appareil photo.
+        {ratio === "portrait" ? "portrait" : ratio === "carre" ? "carré" : "paysage"}.
+        {ratio === "paysage" &&
+          " Une affiche verticale est affichée en entier, sans être coupée."}
       </p>
 
       {error && <p className="mt-2 text-xs font-semibold text-red-300">{error}</p>}

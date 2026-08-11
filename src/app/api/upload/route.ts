@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { requireEditor } from "@/lib/auth";
+import { auth, canEdit } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { uploadPhoto } from "@/lib/storage";
 
 export const runtime = "nodejs";
@@ -15,18 +16,43 @@ const FORMATS: Record<string, string> = {
 };
 
 export async function POST(req: Request) {
-  try {
-    await requireEditor();
-  } catch {
+  const session = await auth();
+  if (!session?.user) {
     return NextResponse.json(
-      { error: "Vous n'avez pas les droits pour ajouter une photo." },
-      { status: 403 }
+      { error: "Connectez-vous pour ajouter une photo." },
+      { status: 401 }
     );
   }
 
   const form = await req.formData();
   const file = form.get("file");
   const prefix = (form.get("prefix") as string) || "photo";
+  const usage = (form.get("usage") as string) || "";
+
+  /**
+   * Un dirigeant depose ce qu'il veut.
+   * Un licencie ne peut envoyer qu'une photo pour sa propre demande,
+   * et une seule fois tant qu'elle n'est pas traitee.
+   */
+  if (!canEdit(session.user.role)) {
+    if (usage !== "demande") {
+      return NextResponse.json(
+        { error: "Vous n'avez pas les droits pour ajouter une photo." },
+        { status: 403 }
+      );
+    }
+
+    const dejaJoueur = await prisma.player.findUnique({
+      where: { userId: session.user.id },
+      select: { id: true },
+    });
+    if (dejaJoueur) {
+      return NextResponse.json(
+        { error: "Votre fiche existe déjà : demandez à un dirigeant de la modifier." },
+        { status: 403 }
+      );
+    }
+  }
 
   if (!(file instanceof File)) {
     return NextResponse.json({ error: "Aucune image reçue." }, { status: 400 });

@@ -122,6 +122,7 @@ export default function RejoindreForm({
             defaultValue={demande?.photo}
             ratio="portrait"
             label="Ma photo (facultatif)"
+            usage="demande"
           />
         </div>
 
