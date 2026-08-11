@@ -6,7 +6,7 @@ export default function ConfidentialitePage() {
       <p className="eyebrow">Vos données</p>
       <h1 className="title mt-3">Confidentialité</h1>
       <p className="mt-5 text-cream/70">
-        L&apos;US Anizy-Pinon s&apos;engage à limiter la collecte de données au strict
+        L&apos;US Anizy Pinon s&apos;engage à limiter la collecte de données au strict
         nécessaire au fonctionnement de l&apos;application.
       </p>
 

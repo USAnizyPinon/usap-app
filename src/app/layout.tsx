@@ -23,7 +23,7 @@ const sans = Montserrat({
 export const metadata: Metadata = {
   title: {
     default: "US Anizy Pinon",
-    template: "%s · US Anizy-Pinon",
+    template: "%s · US Anizy Pinon",
   },
   description:
     "Application officielle de l'US Anizy Pinon, club de football amateur d'Anizy-le-Grand et Pinon : calendrier des matchs, résultats, classement, effectifs, actualités et événements du club.",
@@ -61,7 +61,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <footer className="mt-20 border-t border-white/10 bg-noir-2">
             <div className="wrap flex flex-col gap-4 py-10 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="font-display text-lg font-black uppercase">US Anizy-Pinon</p>
+                <p className="font-display text-lg font-black uppercase">US Anizy Pinon</p>
                 <p className="mt-1 text-xs text-cream/50">
                   Un club, une passion, une famille.
                 </p>

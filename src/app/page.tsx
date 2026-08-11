@@ -62,7 +62,7 @@ export default async function HomePage() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/logo.png"
-            alt="US Anizy-Pinon"
+            alt="US Anizy Pinon"
             className="mb-6 h-24 w-auto animate-rise drop-shadow-[0_10px_30px_rgba(0,0,0,.6)] sm:h-28"
           />
           <p className="eyebrow animate-rise">Application officielle du club</p>

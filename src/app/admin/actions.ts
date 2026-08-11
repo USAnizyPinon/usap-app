@@ -283,7 +283,7 @@ export async function publierActu(_prev: Etat | null, fd: FormData): Promise<Eta
     if (str(fd, "notifier") === "on") {
       const cibles = await destinatairesActu();
       const { envoyees } = await envoyerNotification(cibles, {
-        title: "US Anizy-Pinon",
+        title: "US Anizy Pinon",
         body: title,
         url: "/actus",
       });

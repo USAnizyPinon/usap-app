@@ -10,7 +10,7 @@ export default function MentionsLegalesPage() {
         <section>
           <h2 className="font-display text-lg font-black uppercase text-cream">Éditeur</h2>
           <p className="mt-2">
-            Cette application est éditée par l&apos;<b>Union Sportive Anizy-Pinon</b>,
+            Cette application est éditée par l&apos;<b>Union Sportive Anizy Pinon</b>,
             association sportive régie par la loi du 1<sup>er</sup> juillet 1901.
           </p>
           <ul className="mt-3 space-y-1">
@@ -47,7 +47,7 @@ export default function MentionsLegalesPage() {
           </h2>
           <p className="mt-2">
             L&apos;écusson, le nom et les visuels du club appartiennent à
-            l&apos;US Anizy-Pinon. Les logos des partenaires restent la propriété de leurs
+            l&apos;US Anizy Pinon. Les logos des partenaires restent la propriété de leurs
             détenteurs respectifs et sont affichés avec leur accord. Toute reproduction
             sans autorisation est interdite.
           </p>

@@ -1,5 +1,5 @@
 /**
- * Donnees de depart de l'US Anizy-Pinon.
+ * Donnees de depart de l'US Anizy Pinon.
  * Lancer avec :  npm run db:seed
  * Le script est "idempotent" : on peut le relancer sans creer de doublons.
  */

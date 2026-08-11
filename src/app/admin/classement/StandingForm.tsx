@@ -25,7 +25,7 @@ export default function StandingForm({
         </div>
         <div className="sm:col-span-2">
           <label className="label" htmlFor="clubName">Club</label>
-          <input id="clubName" name="clubName" className="input" placeholder="US Anizy-Pinon" required />
+          <input id="clubName" name="clubName" className="input" placeholder="US Anizy Pinon" required />
         </div>
         <div>
           <label className="label" htmlFor="played">Joués</label>

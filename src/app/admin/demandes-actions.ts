@@ -136,7 +136,7 @@ export async function accepterDemande(_prev: Etat | null, fd: FormData): Promise
     });
 
     await envoyerNotification([demande.userId], {
-      title: "US Anizy-Pinon",
+      title: "US Anizy Pinon",
       body: demande.supporter
         ? "Votre inscription comme supporter est validée."
         : "Bienvenue ! Vous faites maintenant partie de l'effectif.",
@@ -165,7 +165,7 @@ export async function refuserDemande(_prev: Etat | null, fd: FormData): Promise<
     });
 
     await envoyerNotification([demande.userId], {
-      title: "US Anizy-Pinon",
+      title: "US Anizy Pinon",
       body: "Votre demande n'a pas été retenue. Rendez-vous dans Mon compte.",
       url: "/mon-espace",
     });

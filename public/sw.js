@@ -1,14 +1,14 @@
-/* Service worker : reception des notifications de l'US Anizy-Pinon. */
+/* Service worker : reception des notifications de l'US Anizy Pinon. */
 
 self.addEventListener("push", (event) => {
   let data = {};
   try {
     data = event.data ? event.data.json() : {};
   } catch (e) {
-    data = { title: "US Anizy-Pinon", body: "Nouvelle information du club." };
+    data = { title: "US Anizy Pinon", body: "Nouvelle information du club." };
   }
 
-  const title = data.title || "US Anizy-Pinon";
+  const title = data.title || "US Anizy Pinon";
   const options = {
     body: data.body || "",
     icon: "/icon-192.png",

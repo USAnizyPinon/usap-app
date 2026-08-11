@@ -244,7 +244,7 @@ export async function creerEvenement(_prev: Etat | null, fd: FormData): Promise<
     if (str(fd, "notifier") === "on") {
       const cibles = await destinatairesEvenement();
       const { envoyees } = await envoyerNotification(cibles, {
-        title: "US Anizy-Pinon",
+        title: "US Anizy Pinon",
         body: `Nouvel événement : ${title}`,
         url: "/evenements",
       });
