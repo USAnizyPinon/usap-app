@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { COMPETITION_LABEL, formatDateTime, resultOf } from "@/lib/format";
 import MatchForm from "./MatchForm";
 import ImportFootclubs from "./ImportFootclubs";
+import ViderCalendrier from "./ViderCalendrier";
 import ScoreForm from "./ScoreForm";
 import SportCoricoCard from "@/components/SportCoricoCard";
 import Link from "next/link";
@@ -38,6 +39,7 @@ export default async function AdminMatchsPage() {
           Toute la saison d&apos;un coup, depuis une extraction Footclubs.
         </p>
         <ImportFootclubs teams={teams.map((t) => ({ id: t.id, name: t.name }))} />
+        <ViderCalendrier teams={teams.map((t) => ({ id: t.id, name: t.name }))} />
       </section>
 
       <section>

@@ -10,19 +10,20 @@ export const revalidate = 120;
 
 export default async function HomePage() {
   const now = new Date();
+  const semaine = 7 * 24 * 60 * 60 * 1000;
+  const dansUneSemaine = new Date(now.getTime() + semaine);
+  const ilYaUneSemaine = new Date(now.getTime() - semaine);
 
   const [prochains, derniers, actus, nbJoueurs, nbEquipes, evenements, partenaires, photos] =
     await Promise.all([
     prisma.match.findMany({
-      where: { kickoff: { gte: now } },
+      where: { kickoff: { gte: now, lte: dansUneSemaine } },
       orderBy: { kickoff: "asc" },
-      take: 6,
       include: { team: { select: { name: true } } },
     }),
     prisma.match.findMany({
-      where: { kickoff: { lt: now }, scoreFor: { not: null } },
+      where: { kickoff: { gte: ilYaUneSemaine, lt: now } },
       orderBy: { kickoff: "desc" },
-      take: 3,
       include: { team: { select: { name: true } } },
     }),
     prisma.news.findMany({
@@ -44,6 +45,18 @@ export default async function HomePage() {
     }),
     prisma.photo.findMany({ orderBy: { createdAt: "desc" }, take: 6 }),
   ]);
+
+  // En dehors des périodes de match, on évite une page vide
+  const aVenirSecours =
+    prochains.length === 0
+      ? await prisma.match.findMany({
+          where: { kickoff: { gt: dansUneSemaine } },
+          orderBy: { kickoff: "asc" },
+          take: 3,
+          include: { team: { select: { name: true } } },
+        })
+      : [];
+  const listeAVenir = prochains.length > 0 ? prochains : aVenirSecours;
 
   return (
     <>
@@ -100,7 +113,7 @@ export default async function HomePage() {
             {[
               { k: nbEquipes, l: "équipes engagées" },
               { k: nbJoueurs, l: "licenciés à l'effectif" },
-              { k: prochains.length, l: "matchs à venir" },
+              { k: listeAVenir.length, l: "matchs à venir" },
             ].map((s) => (
               <div key={s.l}>
                 <dt className="font-display text-3xl font-black text-jaune">{s.k}</dt>
@@ -115,22 +128,26 @@ export default async function HomePage() {
       <section className="wrap py-14">
         <div className="flex items-end justify-between gap-4">
           <div>
-            <p className="eyebrow">À venir</p>
-            <h2 className="title mt-3">Prochains matchs</h2>
+            <p className="eyebrow">
+              {prochains.length > 0 ? "Cette semaine" : "À venir"}
+            </p>
+            <h2 className="title mt-3">
+              {prochains.length > 0 ? "Les matchs de la semaine" : "Prochains matchs"}
+            </h2>
           </div>
           <Link href="/matchs" className="hidden text-sm font-bold text-jaune sm:block">
             Tout voir →
           </Link>
         </div>
 
-        {prochains.length === 0 ? (
+        {listeAVenir.length === 0 ? (
           <p className="card mt-6 text-sm text-cream/60">
             Aucun match programmé pour le moment. Les dirigeants ajoutent les rencontres
             depuis l&apos;espace admin.
           </p>
         ) : (
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {prochains.map((m) => (
+            {listeAVenir.map((m) => (
               <MatchCard key={m.id} match={m} />
             ))}
           </div>
@@ -145,7 +162,7 @@ export default async function HomePage() {
       {/* ---------------- DERNIERS RESULTATS ---------------- */}
       {derniers.length > 0 && (
         <section className="wrap pb-14">
-          <p className="eyebrow">Le week-end dernier</p>
+          <p className="eyebrow">La semaine dernière</p>
           <h2 className="title mt-3">Derniers résultats</h2>
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {derniers.map((m) => (

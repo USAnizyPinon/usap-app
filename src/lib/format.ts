@@ -57,3 +57,33 @@ export function slugify(s: string) {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
 }
+
+/**
+ * Chaque compétition a sa couleur, pour repérer une affiche d'un coup d'œil.
+ * Les classes sont écrites en entier : Tailwind ne lit pas les noms construits.
+ */
+export const COMPETITION_STYLE: Record<
+  Competition,
+  { badge: string; accent: string; texte: string }
+> = {
+  CHAMPIONNAT: {
+    badge: "border-jaune/40 bg-jaune/10 text-jaune",
+    accent: "bg-jaune",
+    texte: "text-jaune",
+  },
+  COUPE: {
+    badge: "border-sky-400/40 bg-sky-500/10 text-sky-300",
+    accent: "bg-sky-400",
+    texte: "text-sky-300",
+  },
+  AMICAL: {
+    badge: "border-emerald-400/40 bg-emerald-500/10 text-emerald-300",
+    accent: "bg-emerald-400",
+    texte: "text-emerald-300",
+  },
+  PLATEAU: {
+    badge: "border-violet-400/40 bg-violet-500/10 text-violet-300",
+    accent: "bg-violet-400",
+    texte: "text-violet-300",
+  },
+};

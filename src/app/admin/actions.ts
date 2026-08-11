@@ -157,6 +157,31 @@ export async function modifierMatch(_prev: Etat | null, fd: FormData): Promise<E
   }
 }
 
+/** Vide le calendrier d'une categorie : pratique apres un import a refaire. */
+export async function viderCalendrier(_prev: Etat | null, fd: FormData): Promise<Etat> {
+  try {
+    await requireEditor();
+    const teamId = str(fd, "teamId");
+    if (!teamId) return { ok: false, message: "Choisissez une catégorie." };
+
+    // On ne touche pas aux matchs dont le score est deja saisi
+    const { count } = await prisma.match.deleteMany({
+      where: { teamId, scoreFor: null },
+    });
+
+    refreshAll();
+    return {
+      ok: true,
+      message:
+        count === 0
+          ? "Aucun match à supprimer (ceux avec un score sont conservés)."
+          : `${count} match(s) supprimé(s). Les matchs avec un score ont été conservés.`,
+    };
+  } catch {
+    return { ok: false, message: "Suppression impossible." };
+  }
+}
+
 export async function supprimerMatch(fd: FormData) {
   await requireEditor();
   await prisma.match.delete({ where: { id: str(fd, "matchId") } });
