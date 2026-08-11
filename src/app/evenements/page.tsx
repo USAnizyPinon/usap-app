@@ -38,54 +38,68 @@ export default async function EvenementsPage() {
             const complet = e.capacity ? inscrits >= e.capacity : false;
 
             return (
-              <article key={e.id} className="card overflow-hidden">
-                {e.image && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={e.image}
-                    alt=""
-                    loading="lazy"
-                    className="-mx-5 -mt-5 mb-5 aspect-video w-[calc(100%+2.5rem)] object-cover"
-                  />
-                )}
+              <article key={e.id} className="card">
+                <div className="flex flex-col gap-5 sm:flex-row">
+                  {e.image && (
+                    <a
+                      href={e.image}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Voir l'affiche en entier"
+                      className="grid shrink-0 place-items-center overflow-hidden rounded-xl bg-noir-3 sm:w-44"
+                    >
+                      {/* object-contain : l'affiche est montrée en entier, jamais coupée */}
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={e.image}
+                        alt={`Affiche : ${e.title}`}
+                        loading="lazy"
+                        className="max-h-56 w-full object-contain sm:max-h-60"
+                      />
+                    </a>
+                  )}
 
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div>
-                    <h2 className="font-display text-2xl font-black uppercase leading-tight">
-                      {e.title}
-                    </h2>
-                    <p className="mt-2 text-sm capitalize text-jaune">
-                      {formatDateTime(e.startsAt)}
-                    </p>
-                    {e.place && (
-                      <p className="mt-1 text-xs text-cream/50">{e.place}</p>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <h2 className="font-display text-2xl font-black uppercase leading-tight">
+                          {e.title}
+                        </h2>
+                        <p className="mt-2 text-sm capitalize text-jaune">
+                          {formatDateTime(e.startsAt)}
+                        </p>
+                        {e.place && (
+                          <p className="mt-1 text-xs text-cream/50">{e.place}</p>
+                        )}
+                      </div>
+
+                      {e.capacity && (
+                        <span
+                          className={`rounded-full border px-3 py-1 text-xs font-bold ${
+                            complet
+                              ? "border-red-400/30 bg-red-500/10 text-red-300"
+                              : "border-white/20 text-cream/70"
+                          }`}
+                        >
+                          {complet ? "Complet" : `${inscrits} / ${e.capacity} places`}
+                        </span>
+                      )}
+                      {!e.capacity && inscrits > 0 && (
+                        <span className="rounded-full border border-white/20 px-3 py-1 text-xs font-bold text-cream/70">
+                          {inscrits} inscrit{inscrits > 1 ? "s" : ""}
+                        </span>
+                      )}
+                    </div>
+
+                    {e.description && (
+                      <p className="mt-4 whitespace-pre-line text-sm text-cream/70">
+                        {e.description}
+                      </p>
                     )}
                   </div>
-
-                  {e.capacity && (
-                    <span
-                      className={`rounded-full border px-3 py-1 text-xs font-bold ${
-                        complet
-                          ? "border-red-400/30 bg-red-500/10 text-red-300"
-                          : "border-white/20 text-cream/70"
-                      }`}
-                    >
-                      {complet ? "Complet" : `${inscrits} / ${e.capacity} places`}
-                    </span>
-                  )}
-                  {!e.capacity && inscrits > 0 && (
-                    <span className="rounded-full border border-white/20 px-3 py-1 text-xs font-bold text-cream/70">
-                      {inscrits} inscrit{inscrits > 1 ? "s" : ""}
-                    </span>
-                  )}
                 </div>
 
-                {e.description && (
-                  <p className="mt-4 whitespace-pre-line text-sm text-cream/70">
-                    {e.description}
-                  </p>
-                )}
-
+                {/* L'inscription occupe toute la largeur : c'est l'action attendue */}
                 <div className="mt-5 border-t border-white/10 pt-5">
                   {!e.openToSignup ? (
                     <p className="text-sm text-cream/55">Les inscriptions sont fermées.</p>

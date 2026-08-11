@@ -127,13 +127,17 @@ export default async function PartenairesPage() {
           <div className="mt-6 flex flex-wrap items-center gap-x-10 gap-y-6">
             {soutiens.map((p) =>
               p.logo ? (
-                <Link key={p.id} href={`/partenaires/${p.slug}`}>
+                <Link
+                  key={p.id}
+                  href={`/partenaires/${p.slug}`}
+                  className="grid h-20 w-32 place-items-center rounded-xl bg-white/95 p-3 transition hover:bg-white"
+                >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={p.logo}
                     alt={p.name}
                     loading="lazy"
-                    className="h-12 w-auto object-contain opacity-70 transition hover:opacity-100"
+                    className="h-full w-full object-contain"
                   />
                 </Link>
               ) : (

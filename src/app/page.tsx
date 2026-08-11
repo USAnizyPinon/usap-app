@@ -309,17 +309,22 @@ export default async function HomePage() {
               </Link>
             </div>
 
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-x-10 gap-y-8">
+            {/* Fond blanc : sans lui, les logos sombres disparaissent */}
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
               {partenaires.map((p) => (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img
+                <div
                   key={p.id}
-                  src={p.logo as string}
-                  alt={p.name}
-                  loading="lazy"
                   title={p.name}
-                  className="h-12 w-auto max-w-[130px] object-contain opacity-70 transition hover:opacity-100"
-                />
+                  className="grid h-20 w-32 place-items-center rounded-xl bg-white/95 p-3 transition hover:bg-white"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={p.logo as string}
+                    alt={p.name}
+                    loading="lazy"
+                    className="h-full w-full object-contain"
+                  />
+                </div>
               ))}
             </div>
           </div>
