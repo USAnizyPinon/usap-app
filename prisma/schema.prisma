@@ -208,6 +208,8 @@ model Match {
   // resultat : laisser vide tant que le match n'est pas joue
   scoreFor     Int?
   scoreAgainst Int?
+  // Date d'envoi du rappel de veille : evite un double envoi
+  remindedAt   DateTime?
   notes        String?    @db.Text
 
   @@index([teamId, kickoff])

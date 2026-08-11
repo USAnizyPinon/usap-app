@@ -8,6 +8,8 @@ const TABS = [
   { href: "/admin", label: "Tableau de bord" },
   { href: "/admin/matchs", label: "Matchs" },
   { href: "/admin/effectif", label: "Effectifs" },
+  { href: "/admin/equipes", label: "Créneaux" },
+  { href: "/admin/categories", label: "Entraînements" },
   { href: "/admin/actus", label: "Actualités" },
   { href: "/admin/demandes", label: "Demandes" },
   { href: "/admin/classement", label: "Classement" },

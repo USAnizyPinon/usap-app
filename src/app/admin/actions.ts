@@ -593,3 +593,36 @@ export async function appliquerPhotos(fd: FormData) {
   await prisma.player.updateMany({ where: { teamId }, data: { publicPhoto: visible } });
   refreshAll();
 }
+
+/* ==========================================================
+   CATEGORIES : creneaux, contacts, presentation
+   ========================================================== */
+
+export async function modifierEquipe(_prev: Etat | null, fd: FormData): Promise<Etat> {
+  try {
+    await requireEditor();
+    const id = str(fd, "teamId");
+    if (!id) return { ok: false, message: "Catégorie introuvable." };
+
+    await prisma.team.update({
+      where: { id },
+      data: {
+        level: str(fd, "level") || null,
+        venue: str(fd, "venue") || null,
+        description: str(fd, "description") || null,
+        birthYears: str(fd, "birthYears") || null,
+        trainDays: str(fd, "trainDays") || null,
+        trainHours: str(fd, "trainHours") || null,
+        restartDate: str(fd, "restartDate") || null,
+        contactName: str(fd, "contactName") || null,
+        contactTel: str(fd, "contactTel") || null,
+      },
+    });
+
+    refreshAll();
+    revalidatePath("/nous-rejoindre");
+    return { ok: true, message: "Catégorie mise à jour." };
+  } catch {
+    return { ok: false, message: "Modification impossible." };
+  }
+}
