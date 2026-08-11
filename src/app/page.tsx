@@ -46,17 +46,19 @@ export default async function HomePage() {
     prisma.photo.findMany({ orderBy: { createdAt: "desc" }, take: 6 }),
   ]);
 
-  // En dehors des périodes de match, on évite une page vide
-  const aVenirSecours =
+  // Hors période de match (été, trêve), la semaine est vide :
+  // on annonce alors les toutes prochaines rencontres, en le disant clairement.
+  const horsSemaine =
     prochains.length === 0
       ? await prisma.match.findMany({
           where: { kickoff: { gt: dansUneSemaine } },
           orderBy: { kickoff: "asc" },
-          take: 3,
+          take: 2,
           include: { team: { select: { name: true } } },
         })
       : [];
-  const listeAVenir = prochains.length > 0 ? prochains : aVenirSecours;
+  const semaineChargee = prochains.length > 0;
+  const listeAVenir = semaineChargee ? prochains : horsSemaine;
 
   return (
     <>
@@ -129,11 +131,16 @@ export default async function HomePage() {
         <div className="flex items-end justify-between gap-4">
           <div>
             <p className="eyebrow">
-              {prochains.length > 0 ? "Cette semaine" : "À venir"}
+              {semaineChargee ? "Cette semaine" : "Prochainement"}
             </p>
             <h2 className="title mt-3">
-              {prochains.length > 0 ? "Les matchs de la semaine" : "Prochains matchs"}
+              {semaineChargee ? "Les matchs de la semaine" : "La reprise approche"}
             </h2>
+            {!semaineChargee && listeAVenir.length > 0 && (
+              <p className="mt-2 text-sm text-cream/55">
+                Aucun match cette semaine. Voici les prochaines rencontres.
+              </p>
+            )}
           </div>
           <Link href="/matchs" className="hidden text-sm font-bold text-jaune sm:block">
             Tout voir →
