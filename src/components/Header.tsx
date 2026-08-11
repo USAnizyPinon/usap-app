@@ -36,10 +36,10 @@ export default function Header() {
       <div className="wrap flex h-16 items-center justify-between gap-4">
         <Link href="/" className="flex items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="US Anizy-Pinon" className="h-10 w-auto" />
+          <img src="/logo.png" alt="US Anizy Pinon" className="h-10 w-auto" />
           <span className="leading-none">
             <span className="block font-display text-sm font-black uppercase tracking-wide">
-              Anizy-Pinon
+              Anizy Pinon
             </span>
             <span className="block text-[10px] uppercase tracking-[.2em] text-cream/50">
               Union Sportive
