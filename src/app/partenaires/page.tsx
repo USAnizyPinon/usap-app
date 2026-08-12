@@ -31,13 +31,13 @@ export default async function PartenairesPage() {
                 className="card flex flex-col gap-5 transition hover:border-jaune/40 sm:flex-row"
               >
                 {p.logo && (
-                  <div className="h-32 w-32 shrink-0 overflow-hidden rounded-2xl bg-white/95 p-4">
+                  <div className="flex h-32 w-32 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-white/95 p-4">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={p.logo}
                       alt={p.name}
                       loading="lazy"
-                      className="h-full w-full object-contain"
+                      className="h-24 w-full object-contain"
                     />
                   </div>
                 )}
@@ -130,14 +130,14 @@ export default async function PartenairesPage() {
                 <Link
                   key={p.id}
                   href={`/partenaires/${p.slug}`}
-                  className="grid h-20 w-32 place-items-center rounded-xl bg-white/95 p-3 transition hover:bg-white"
+                  className="flex h-20 w-32 items-center justify-center overflow-hidden rounded-xl bg-white/95 p-3 transition hover:bg-white"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={p.logo}
                     alt={p.name}
                     loading="lazy"
-                    className="h-full w-full object-contain"
+                    className="h-14 w-full object-contain"
                   />
                 </Link>
               ) : (

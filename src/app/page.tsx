@@ -200,13 +200,16 @@ export default async function HomePage() {
                 className="card group overflow-hidden transition hover:border-jaune/50"
               >
                 {e.image && (
-                  /* eslint-disable-next-line @next/next/no-img-element */
-                  <img
-                    src={e.image}
-                    alt=""
-                    loading="lazy"
-                    className="-mx-5 -mt-5 mb-4 aspect-video w-[calc(100%+2.5rem)] object-cover"
-                  />
+                  <div className="-mx-5 -mt-5 mb-4 flex h-40 items-center justify-center overflow-hidden bg-noir-3">
+                    {/* object-contain : l'affiche n'est jamais coupée */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={e.image}
+                      alt=""
+                      loading="lazy"
+                      className="h-40 w-full object-contain"
+                    />
+                  </div>
                 )}
                 <p className="font-display text-lg font-black uppercase leading-tight group-hover:text-jaune">
                   {e.title}
@@ -315,14 +318,14 @@ export default async function HomePage() {
                 <div
                   key={p.id}
                   title={p.name}
-                  className="grid h-20 w-32 place-items-center rounded-xl bg-white/95 p-3 transition hover:bg-white"
+                  className="flex h-20 w-32 items-center justify-center overflow-hidden rounded-xl bg-white/95 p-3 transition hover:bg-white"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={p.logo as string}
                     alt={p.name}
                     loading="lazy"
-                    className="h-full w-full object-contain"
+                    className="h-14 w-full object-contain"
                   />
                 </div>
               ))}
