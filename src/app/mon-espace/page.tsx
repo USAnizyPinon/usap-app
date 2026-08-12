@@ -6,6 +6,7 @@ import SportCoricoCard from "@/components/SportCoricoCard";
 import PreferencesForm from "./PreferencesForm";
 import NotificationsCard from "@/components/NotificationsCard";
 import MatchCard from "@/components/MatchCard";
+import { bornesWeekend, weekendEnCours } from "@/lib/weekend";
 import RejoindreForm from "./RejoindreForm";
 
 export const dynamic = "force-dynamic";
@@ -42,16 +43,32 @@ export default async function MonEspacePage() {
 
   const favoris = me?.favorites.map((f) => f.id) ?? [];
 
-  // Les prochains matchs des categories suivies
-  const prochains =
+  // Le week-end qui arrive, pour les categories suivies
+  const { debut, fin } = bornesWeekend();
+  const weekend =
     favoris.length > 0
       ? await prisma.match.findMany({
-          where: { teamId: { in: favoris }, kickoff: { gte: new Date() } },
+          where: { teamId: { in: favoris }, kickoff: { gte: debut, lte: fin } },
+          orderBy: { kickoff: "asc" },
+          include: { team: { select: { name: true } } },
+        })
+      : [];
+
+  // Si le week-end est vide, on montre quand meme ce qui vient ensuite
+  const prochains =
+    favoris.length > 0 && weekend.length === 0
+      ? await prisma.match.findMany({
+          where: { teamId: { in: favoris }, kickoff: { gt: fin } },
           orderBy: { kickoff: "asc" },
           take: 3,
           include: { team: { select: { name: true } } },
         })
       : [];
+
+  const dateWeekend = new Intl.DateTimeFormat("fr-FR", {
+    day: "numeric",
+    month: "long",
+  });
 
   const editor = canEdit(session.user.role);
 
@@ -130,17 +147,49 @@ export default async function MonEspacePage() {
         )}
       </section>
 
-      {/* Mes prochains matchs */}
-      {prochains.length > 0 && (
+      {/* Mon week-end */}
+      {favoris.length > 0 && (
         <section className="mt-10">
-          <h2 className="font-display text-xl font-black uppercase">
-            Mes prochains matchs
-          </h2>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {prochains.map((m) => (
-              <MatchCard key={m.id} match={m} />
-            ))}
+          <div className="flex flex-wrap items-baseline justify-between gap-3">
+            <h2 className="font-display text-xl font-black uppercase">
+              {weekend.length > 0 ? "Mon week-end" : "Mes prochains matchs"}
+            </h2>
+            {weekend.length > 0 && (
+              <p className="text-sm text-cream/50">
+                {weekendEnCours() ? "Ce" : "Le"} week-end du{" "}
+                {dateWeekend.format(debut)} au {dateWeekend.format(fin)}
+              </p>
+            )}
           </div>
+
+          {weekend.length > 0 ? (
+            <>
+              <p className="mt-2 text-sm text-cream/60">
+                {weekend.length} match{weekend.length > 1 ? "s" : ""} dans
+                {weekend.length > 1 ? " vos catégories" : " votre catégorie"}.
+              </p>
+              <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {weekend.map((m) => (
+                  <MatchCard key={m.id} match={m} />
+                ))}
+              </div>
+            </>
+          ) : prochains.length > 0 ? (
+            <>
+              <p className="mt-2 text-sm text-cream/60">
+                Rien ce week-end. Voici ce qui arrive ensuite.
+              </p>
+              <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {prochains.map((m) => (
+                  <MatchCard key={m.id} match={m} />
+                ))}
+              </div>
+            </>
+          ) : (
+            <p className="card mt-4 text-sm text-cream/60">
+              Aucun match programmé dans vos catégories pour le moment.
+            </p>
+          )}
         </section>
       )}
 
