@@ -13,7 +13,9 @@
     "db:studio": "prisma studio",
     "db:partners": "tsx prisma/seed-partners.ts",
     "db:classement": "tsx prisma/seed-classement.ts",
-    "db:creneaux": "tsx prisma/seed-creneaux.ts"
+    "db:creneaux": "tsx prisma/seed-creneaux.ts",
+    "db:club": "tsx prisma/seed-club.ts",
+    "db:retirer-u16": "tsx prisma/retirer-u16.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

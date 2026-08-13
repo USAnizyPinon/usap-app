@@ -110,6 +110,19 @@ export default async function EquipePage({ params }: { params: { slug: string } 
                 number={p.number}
               />
             ))}
+
+            {/* L'effectif se complète au fil des licences */}
+            <figure className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-noir-2/50 p-4 text-center">
+              <span className="grid h-10 w-10 place-items-center rounded-full border border-dashed border-white/20 text-lg text-cream/30">
+                +
+              </span>
+              <figcaption className="mt-3">
+                <p className="text-sm font-bold text-cream/60">Et d&apos;autres</p>
+                <p className="mt-0.5 text-[11px] text-cream/40">
+                  L&apos;effectif se complète
+                </p>
+              </figcaption>
+            </figure>
           </div>
         )}
       </section>

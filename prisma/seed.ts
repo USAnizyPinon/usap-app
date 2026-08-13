@@ -13,7 +13,6 @@ const TEAMS = [
   { name: "U10 · U11", level: "Football à 8", venue: "Stade de Pinon" },
   { name: "U12 · U13", level: "Football à 8", venue: "Stade de Pinon" },
   { name: "U14 · U15", level: "Football à 11", venue: "Stade d'Anizy" },
-  { name: "U16 · U18", level: "Football à 11", venue: "Stade d'Anizy" },
   { name: "Pôle Féminin Jeune", level: "Football Féminin", venue: "Stade de Pinon" },
   { name: "Féminines Seniors", level: "Football à 11", venue: "Stade de Pinon" },
   { name: "Seniors", level: "Football à 11", venue: "Stade d'Anizy" },
