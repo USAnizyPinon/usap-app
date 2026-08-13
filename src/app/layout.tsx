@@ -5,6 +5,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Providers from "@/components/Providers";
 import InstallBanner from "@/components/InstallBanner";
+import NotifGate from "@/components/NotifGate";
 
 const display = Playfair_Display({
   subsets: ["latin"],
@@ -69,6 +70,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Header />
           <main className="flex-1">{children}</main>
           <InstallBanner />
+          <NotifGate />
 
           <footer className="mt-20 border-t border-white/10 bg-noir-2">
             <div className="wrap flex flex-col gap-4 py-10 sm:flex-row sm:items-center sm:justify-between">

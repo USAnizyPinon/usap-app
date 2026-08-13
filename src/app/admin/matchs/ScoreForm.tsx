@@ -9,16 +9,18 @@ export default function ScoreForm({
   matchId,
   scoreFor,
   scoreAgainst,
+  scorers,
 }: {
   matchId: string;
   scoreFor: number | null;
   scoreAgainst: number | null;
+  scorers?: string | null;
 }) {
   const [state, action] = useFormState(enregistrerScore, null);
 
   return (
     <div>
-      <form action={action} className="flex items-end gap-2">
+      <form action={action} className="flex flex-wrap items-end gap-2">
         <input type="hidden" name="matchId" value={matchId} />
         <div className="w-20">
           <label className="label" htmlFor={`for-${matchId}`}>
@@ -45,6 +47,18 @@ export default function ScoreForm({
             min={0}
             defaultValue={scoreAgainst ?? ""}
             className="input text-center"
+          />
+        </div>
+        <div className="min-w-[220px] flex-1">
+          <label className="label" htmlFor={`bt-${matchId}`}>
+            Buteurs
+          </label>
+          <input
+            id={`bt-${matchId}`}
+            name="scorers"
+            className="input"
+            placeholder="Clément Mahu (2), John Vigues"
+            defaultValue={scorers ?? ""}
           />
         </div>
         <SubmitButton className="btn-ghost !py-2">Enregistrer</SubmitButton>

@@ -46,6 +46,16 @@ export const authOptions: NextAuthOptions = {
       if (isAdminEmail(user.email)) {
         await prisma.user.update({ where: { id: user.id }, data: { role: "ADMIN" } });
       }
+
+      // À la création, on suit toutes les catégories :
+      // la personne affine ensuite depuis Mon espace.
+      const equipes = await prisma.team.findMany({ select: { id: true } });
+      if (equipes.length > 0) {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { favorites: { connect: equipes.map((e) => ({ id: e.id })) } },
+        });
+      }
     },
   },
 };

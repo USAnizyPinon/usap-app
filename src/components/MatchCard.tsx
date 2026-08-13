@@ -19,6 +19,7 @@ export type MatchLike = {
   venue: string | null;
   scoreFor: number | null;
   scoreAgainst: number | null;
+  scorers?: string | null;
   team: { name: string };
 };
 
@@ -60,7 +61,7 @@ export default function MatchCard({ match }: { match: MatchLike }) {
       </div>
 
       {/* L'affiche : ecusson · score/heure · ecusson */}
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 py-6">
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 bg-noir-3/60 px-4 py-6">
         <div className="flex flex-col items-center gap-2 text-center">
           <Crest name={gauche.nom} logo={gauche.logo} usap={gauche.usap} />
           <span className="line-clamp-2 text-xs font-bold leading-tight text-cream/85">
@@ -94,6 +95,16 @@ export default function MatchCard({ match }: { match: MatchLike }) {
           </span>
         </div>
       </div>
+
+      {/* Les buteurs, quand ils sont renseignés */}
+      {joue && match.scorers && (
+        <div className="border-t border-white/10 px-4 py-3">
+          <p className="text-[10px] uppercase tracking-wider text-cream/40">
+            Buteurs
+          </p>
+          <p className="mt-1 text-xs font-semibold text-cream/80">{match.scorers}</p>
+        </div>
+      )}
 
       {/* Pied : date et lieu, ou verdict */}
       <div className="flex items-center justify-between gap-3 border-t border-white/10 px-4 py-3">

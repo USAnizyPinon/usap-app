@@ -215,6 +215,10 @@ model Match {
   // Date d'envoi du rappel de veille : evite un double envoi
   remindedAt   DateTime?
   notes        String?    @db.Text
+  // Buteurs, saisis librement : "Clément Mahu (2), John Vigues"
+  scorers      String?
+  // Horodatage de l'envoi du rappel, pour ne prévenir qu'une fois
+  remindedAt   DateTime?
 
   @@index([teamId, kickoff])
 }

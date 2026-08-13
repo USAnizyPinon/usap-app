@@ -118,6 +118,7 @@ export default async function AdminMatchsPage() {
                     matchId={m.id}
                     scoreFor={m.scoreFor}
                     scoreAgainst={m.scoreAgainst}
+                    scorers={m.scorers}
                   />
                   <Link
                     href={`/admin/matchs/${m.id}`}

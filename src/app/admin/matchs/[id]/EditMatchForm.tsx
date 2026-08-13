@@ -84,6 +84,16 @@ export default function EditMatchForm({
           <label className="label" htmlFor="scoreAgainst">Score adverse</label>
           <input id="scoreAgainst" name="scoreAgainst" type="number" min={0} className="input" defaultValue={match.scoreAgainst ?? ""} />
         </div>
+        <div className="sm:col-span-2 lg:col-span-3">
+          <label className="label" htmlFor="scorers">Buteurs</label>
+          <input
+            id="scorers"
+            name="scorers"
+            className="input"
+            placeholder="Clément Mahu (2), John Vigues"
+            defaultValue={match.scorers ?? ""}
+          />
+        </div>
       </div>
 
       <div className="mt-5 flex flex-wrap gap-3">
