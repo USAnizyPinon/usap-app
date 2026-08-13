@@ -18,6 +18,76 @@ function refresh() {
   }
 }
 
+/** Compare deux noms sans tenir compte des accents ni de la casse. */
+function normaliser(s: string) {
+  return s
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z]/g, "");
+}
+
+/**
+ * Cherche une fiche existante au même nom, sans compte rattaché.
+ * Évite qu'un licencié déjà à l'effectif crée un doublon.
+ */
+export async function chercherFiche(prenom: string, nom: string) {
+  if (!prenom || !nom) return [];
+
+  const candidats = await prisma.player.findMany({
+    where: { userId: null },
+    include: { team: { select: { name: true } } },
+  });
+
+  const p = normaliser(prenom);
+  const n = normaliser(nom);
+
+  return candidats
+    .filter(
+      (c) => normaliser(c.firstName) === p && normaliser(c.lastName) === n
+    )
+    .map((c) => ({
+      id: c.id,
+      nom: `${c.firstName} ${c.lastName}`,
+      equipe: c.team.name,
+      photo: c.photo,
+    }));
+}
+
+/**
+ * Le licencié se reconnaît dans une fiche existante : on rattache son compte.
+ * Un dirigeant n'a rien à valider, le nom correspond déjà à l'effectif.
+ */
+export async function rattacherAFiche(_prev: Etat | null, fd: FormData): Promise<Etat> {
+  const session = await auth();
+  if (!session?.user) return { ok: false, message: "Connectez-vous d'abord." };
+
+  const playerId = str(fd, "playerId");
+  const fiche = await prisma.player.findUnique({
+    where: { id: playerId },
+    select: { userId: true, firstName: true },
+  });
+
+  if (!fiche) return { ok: false, message: "Fiche introuvable." };
+  if (fiche.userId) {
+    return { ok: false, message: "Cette fiche est déjà rattachée à un compte." };
+  }
+
+  await prisma.player.update({
+    where: { id: playerId },
+    data: { userId: session.user.id },
+  });
+
+  // Une éventuelle demande en cours n'a plus lieu d'être
+  await prisma.joinRequest.deleteMany({ where: { userId: session.user.id } });
+
+  refresh();
+  return {
+    ok: true,
+    message: `Bienvenue ${fiche.firstName} ! Votre compte est relié à votre fiche.`,
+  };
+}
+
 /* ==========================================================
    COTE LICENCIE : envoyer sa demande
    ========================================================== */
@@ -136,10 +206,10 @@ export async function accepterDemande(_prev: Etat | null, fd: FormData): Promise
     });
 
     await envoyerNotification([demande.userId], {
-      title: "US Anizy Pinon",
+      title: demande.supporter ? "Inscription validée" : "Bienvenue au club",
       body: demande.supporter
         ? "Votre inscription comme supporter est validée."
-        : "Bienvenue ! Vous faites maintenant partie de l'effectif.",
+        : "Vous faites maintenant partie de l'effectif.",
       url: "/mon-espace",
     });
 
@@ -165,7 +235,7 @@ export async function refuserDemande(_prev: Etat | null, fd: FormData): Promise<
     });
 
     await envoyerNotification([demande.userId], {
-      title: "US Anizy Pinon",
+      title: "Réponse à votre demande",
       body: "Votre demande n'a pas été retenue. Rendez-vous dans Mon compte.",
       url: "/mon-espace",
     });

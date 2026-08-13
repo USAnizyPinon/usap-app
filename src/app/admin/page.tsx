@@ -20,9 +20,10 @@ export default async function AdminHome() {
     prisma.match.count({ where: { kickoff: { lt: now }, scoreFor: null } }),
   ]);
 
-  const demandesEnAttente = await prisma.joinRequest.count({
-    where: { status: "EN_ATTENTE" },
-  });
+  const [demandesEnAttente, photosEnAttente] = await Promise.all([
+    prisma.joinRequest.count({ where: { status: "EN_ATTENTE" } }),
+    prisma.player.count({ where: { pendingPhoto: { not: null } } }),
+  ]);
 
   return (
     <div className="space-y-10">
@@ -53,6 +54,20 @@ export default async function AdminHome() {
           </p>
           <Link href="/admin/demandes" className="btn-jaune mt-4">
             Voir les demandes
+          </Link>
+        </div>
+      )}
+
+      {photosEnAttente > 0 && (
+        <div className="rounded-2xl border border-jaune/30 bg-jaune/10 p-5">
+          <p className="font-bold text-jaune">
+            {photosEnAttente} photo{photosEnAttente > 1 ? "s" : ""} à valider
+          </p>
+          <p className="mt-1 text-sm text-cream/70">
+            Des licenciés ont proposé une nouvelle photo pour leur fiche.
+          </p>
+          <Link href="/admin/photos" className="btn-jaune mt-4">
+            Voir les photos
           </Link>
         </div>
       )}

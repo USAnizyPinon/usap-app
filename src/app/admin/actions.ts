@@ -308,7 +308,7 @@ export async function publierActu(_prev: Etat | null, fd: FormData): Promise<Eta
     if (str(fd, "notifier") === "on") {
       const cibles = await destinatairesActu();
       const { envoyees } = await envoyerNotification(cibles, {
-        title: "US Anizy Pinon",
+        title: "Nouvelle actualité",
         body: title,
         url: "/actus",
       });
@@ -624,5 +624,60 @@ export async function modifierEquipe(_prev: Etat | null, fd: FormData): Promise<
     return { ok: true, message: "Catégorie mise à jour." };
   } catch {
     return { ok: false, message: "Modification impossible." };
+  }
+}
+
+/* ==========================================================
+   PHOTOS PROPOSEES PAR LES JOUEURS
+   ========================================================== */
+
+export async function accepterPhoto(_prev: Etat | null, fd: FormData): Promise<Etat> {
+  try {
+    await requireEditor();
+    const id = str(fd, "playerId");
+
+    const joueur = await prisma.player.findUnique({
+      where: { id },
+      select: { photo: true, pendingPhoto: true, firstName: true },
+    });
+    if (!joueur?.pendingPhoto) {
+      return { ok: false, message: "Aucune photo en attente." };
+    }
+
+    // L'ancienne photo n'a plus lieu d'être conservée
+    if (joueur.photo) await deletePhoto(joueur.photo).catch(() => {});
+
+    await prisma.player.update({
+      where: { id },
+      data: { photo: joueur.pendingPhoto, pendingPhoto: null, pendingAt: null },
+    });
+
+    refreshAll();
+    return { ok: true, message: `Photo de ${joueur.firstName} validée.` };
+  } catch {
+    return { ok: false, message: "Validation impossible." };
+  }
+}
+
+export async function refuserPhoto(_prev: Etat | null, fd: FormData): Promise<Etat> {
+  try {
+    await requireEditor();
+    const id = str(fd, "playerId");
+
+    const joueur = await prisma.player.findUnique({
+      where: { id },
+      select: { pendingPhoto: true },
+    });
+    if (joueur?.pendingPhoto) await deletePhoto(joueur.pendingPhoto).catch(() => {});
+
+    await prisma.player.update({
+      where: { id },
+      data: { pendingPhoto: null, pendingAt: null },
+    });
+
+    refreshAll();
+    return { ok: true, message: "Photo refusée." };
+  } catch {
+    return { ok: false, message: "Opération impossible." };
   }
 }

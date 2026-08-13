@@ -5,10 +5,10 @@ self.addEventListener("push", (event) => {
   try {
     data = event.data ? event.data.json() : {};
   } catch (e) {
-    data = { title: "US Anizy Pinon", body: "Nouvelle information du club." };
+    data = { title: "Information du club", body: "Ouvrez l'application pour en savoir plus." };
   }
 
-  const title = data.title || "US Anizy Pinon";
+  const title = data.title || "Information du club";
   const options = {
     body: data.body || "",
     icon: "/icon-192.png",

@@ -146,6 +146,10 @@ model Player {
   publicPhoto Boolean     @default(true)
   nameDisplay NameDisplay @default(COMPLET)
 
+  // Photo proposee par le joueur, en attente de validation d'un dirigeant
+  pendingPhoto String?
+  pendingAt    DateTime?
+
   teamId String
   team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
 

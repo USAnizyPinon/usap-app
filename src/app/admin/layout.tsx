@@ -12,6 +12,7 @@ const TABS = [
   { href: "/admin/categories", label: "Entraînements" },
   { href: "/admin/actus", label: "Actualités" },
   { href: "/admin/demandes", label: "Demandes" },
+  { href: "/admin/photos", label: "Photos" },
   { href: "/admin/classement", label: "Classement" },
   { href: "/admin/evenements", label: "Événements" },
   { href: "/admin/galerie", label: "Galerie" },

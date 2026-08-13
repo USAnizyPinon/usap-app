@@ -8,6 +8,9 @@ import NotificationsCard from "@/components/NotificationsCard";
 import MatchCard from "@/components/MatchCard";
 import { bornesWeekend, weekendEnCours } from "@/lib/weekend";
 import RejoindreForm from "./RejoindreForm";
+import MaPhotoForm from "./MaPhotoForm";
+import ReconnaissanceForm from "./ReconnaissanceForm";
+import { chercherFiche } from "../admin/demandes-actions";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Mon compte" };
@@ -40,6 +43,10 @@ export default async function MonEspacePage() {
 
   const prenomGoogle = session.user.name?.split(" ")[0] ?? "";
   const nomGoogle = session.user.name?.split(" ").slice(1).join(" ") ?? "";
+
+  // Si une fiche porte déjà ce nom, on propose de la relier plutôt que d'en créer une
+  const fiches =
+    !monJoueur && !demande ? await chercherFiche(prenomGoogle, nomGoogle) : [];
 
   const favoris = me?.favorites.map((f) => f.id) ?? [];
 
@@ -98,33 +105,50 @@ export default async function MonEspacePage() {
         </span>
       </div>
 
+      {/* Invitation : un compte tout neuf n'est rattaché à rien */}
+      {!monJoueur && !demande && (
+        <div className="mt-8 rounded-2xl border border-jaune/30 bg-jaune/10 p-5">
+          <p className="font-bold text-jaune">Dernière étape : dites-nous qui vous êtes</p>
+          <p className="mt-1 text-sm text-cream/75">
+            Indiquez votre catégorie pour apparaître dans l&apos;effectif et recevoir les
+            informations qui vous concernent. C&apos;est rapide, et un dirigeant valide
+            ensuite.
+          </p>
+        </div>
+      )}
+
       {/* Ma place au club */}
       <section className="mt-10">
         <h2 className="font-display text-xl font-black uppercase">Ma place au club</h2>
 
         {monJoueur ? (
-          <div className="card mt-4 flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              {monJoueur.photo && (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img
-                  src={monJoueur.photo}
-                  alt=""
-                  className="h-14 w-14 rounded-full object-cover object-top"
-                />
-              )}
-              <div>
-                <p className="font-bold">
-                  {monJoueur.firstName} {monJoueur.lastName}
-                </p>
-                <p className="mt-0.5 text-xs text-cream/55">
-                  Dans l&apos;effectif · {monJoueur.team.name}
-                </p>
+          <div className="card mt-4">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                {monJoueur.photo && (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={monJoueur.photo}
+                    alt=""
+                    className="h-14 w-14 rounded-full object-cover object-top"
+                  />
+                )}
+                <div>
+                  <p className="font-bold">
+                    {monJoueur.firstName} {monJoueur.lastName}
+                  </p>
+                  <p className="mt-0.5 text-xs text-cream/55">
+                    Dans l&apos;effectif · {monJoueur.team.name}
+                  </p>
+                </div>
               </div>
+              <span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-300">
+                Validé
+              </span>
             </div>
-            <span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-300">
-              Validé
-            </span>
+
+            {/* Seule la photo reste modifiable une fois à l'effectif */}
+            <MaPhotoForm photo={monJoueur.photo} pendingPhoto={monJoueur.pendingPhoto} />
           </div>
         ) : me?.supporter && demande?.status === "ACCEPTEE" ? (
           <div className="card mt-4">
@@ -137,7 +161,8 @@ export default async function MonEspacePage() {
             </p>
           </div>
         ) : (
-          <div className="mt-4">
+          <div className="mt-4 space-y-4">
+            {fiches.length > 0 && <ReconnaissanceForm fiches={fiches} />}
             <RejoindreForm
               teams={teams.map((t) => ({ id: t.id, name: t.name }))}
               demande={demande}

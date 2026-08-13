@@ -60,6 +60,8 @@ export function slugify(s: string) {
 
 /**
  * Chaque compétition a sa couleur, pour repérer une affiche d'un coup d'œil.
+ * Le vert et le rouge sont réservés aux résultats (victoire / défaite) :
+ * les utiliser ici laisserait croire à un score avant même le match.
  * Les classes sont écrites en entier : Tailwind ne lit pas les noms construits.
  */
 export const COMPETITION_STYLE: Record<
@@ -77,9 +79,9 @@ export const COMPETITION_STYLE: Record<
     texte: "text-sky-300",
   },
   AMICAL: {
-    badge: "border-emerald-400/40 bg-emerald-500/10 text-emerald-300",
-    accent: "bg-emerald-400",
-    texte: "text-emerald-300",
+    badge: "border-cream/30 bg-white/10 text-cream/80",
+    accent: "bg-cream/60",
+    texte: "text-cream/80",
   },
   PLATEAU: {
     badge: "border-violet-400/40 bg-violet-500/10 text-violet-300",
