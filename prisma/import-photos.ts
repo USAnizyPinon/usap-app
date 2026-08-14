@@ -26,13 +26,16 @@ const APPLIQUER = process.argv.includes("--go");
    Lecture du fichier .env (sans dépendance supplémentaire)
    ============================================================ */
 function chargerEnv() {
-  const f = path.resolve(process.cwd(), ".env");
-  if (!fs.existsSync(f)) return;
-  for (const ligne of fs.readFileSync(f, "utf8").split(/\r?\n/)) {
-    const m = ligne.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/);
-    if (!m) continue;
-    const valeur = m[2].replace(/^["']|["']$/g, "");
-    if (!process.env[m[1]]) process.env[m[1]] = valeur;
+  for (const nom of [".env", ".env.local"]) {
+    const f = path.resolve(process.cwd(), nom);
+    if (!fs.existsSync(f)) continue;
+    for (const ligne of fs.readFileSync(f, "utf8").split(/\r?\n/)) {
+      if (/^\s*#/.test(ligne)) continue;
+      const m = ligne.match(/^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*?)\s*$/);
+      if (!m) continue;
+      const valeur = m[2].replace(/^["']|["']$/g, "").trim();
+      if (valeur && !process.env[m[1]]) process.env[m[1]] = valeur;
+    }
   }
 }
 chargerEnv();
@@ -74,24 +77,35 @@ function cle(texte: string) {
   return motsUtiles(texte).sort().join(" ");
 }
 
-/** Distance de Levenshtein : nombre de corrections pour passer de a à b. */
+/**
+ * Nombre de corrections pour passer de a à b.
+ * Compte l'inversion de deux lettres voisines pour une seule faute :
+ * « Mlero » et « Melro » ne sont donc qu'à une correction.
+ */
 function distance(a: string, b: string) {
   if (a === b) return 0;
   const m = a.length, n = b.length;
   if (m === 0 || n === 0) return Math.max(m, n);
-  let prec = Array.from({ length: n + 1 }, (_, i) => i);
+  const d: number[][] = Array.from({ length: m + 1 }, (_, i) =>
+    Array.from({ length: n + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0))
+  );
   for (let i = 1; i <= m; i++) {
-    const cour = [i];
     for (let j = 1; j <= n; j++) {
-      cour[j] = Math.min(
-        prec[j] + 1,
-        cour[j - 1] + 1,
-        prec[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)
-      );
+      const cout = a[i - 1] === b[j - 1] ? 0 : 1;
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + cout);
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
+        d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+      }
     }
-    prec = cour;
   }
-  return prec[n];
+  return d[m][n];
+}
+
+/** Deux mots sont considérés identiques à une petite faute près. */
+function memeMot(a: string, b: string) {
+  if (a === b) return true;
+  const l = Math.min(a.length, b.length);
+  return l >= 4 && distance(a, b) <= 1;
 }
 
 /** Tolérance : plus le nom est long, plus on accepte d'écart. */
@@ -107,15 +121,45 @@ function tolerance(longueur: number) {
    ============================================================ */
 const BUCKET = "photos";
 
+let _client: ReturnType<typeof createClient> | null = null;
+
+/** Vérifie la configuration et explique clairement ce qui manque. */
+function verifierConfig() {
+  const url = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").trim();
+  const key = (process.env.SUPABASE_SECRET_KEY ?? "").trim();
+  const soucis: string[] = [];
+
+  if (!url) soucis.push("NEXT_PUBLIC_SUPABASE_URL est absente du fichier .env");
+  else if (!/^https?:\/\//.test(url))
+    soucis.push(`NEXT_PUBLIC_SUPABASE_URL doit commencer par https:// (valeur lue : "${url}")`);
+  if (!key) soucis.push("SUPABASE_SECRET_KEY est absente du fichier .env");
+
+  if (soucis.length > 0) {
+    console.log("\nConfiguration incomplète :\n");
+    for (const s of soucis) console.log("   • " + s);
+    console.log(`
+Ajoutez ces deux lignes dans le fichier .env, à la racine du projet :
+
+  NEXT_PUBLIC_SUPABASE_URL="https://movqisiftiltsawwdnrc.supabase.co"
+  SUPABASE_SECRET_KEY="sb_secret_..."
+
+L'adresse se trouve dans Supabase > Settings > General > Project URL,
+la clé dans Supabase > Settings > API Keys > Secret key.
+`);
+    return false;
+  }
+  return true;
+}
+
 function supabase() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SECRET_KEY;
-  if (!url || !key) {
-    throw new Error(
-      "NEXT_PUBLIC_SUPABASE_URL et SUPABASE_SECRET_KEY doivent être renseignés dans .env"
+  if (!_client) {
+    _client = createClient(
+      (process.env.NEXT_PUBLIC_SUPABASE_URL as string).trim(),
+      (process.env.SUPABASE_SECRET_KEY as string).trim(),
+      { auth: { persistSession: false } }
     );
   }
-  return createClient(url, key, { auth: { persistSession: false } });
+  return _client;
 }
 
 const TYPES: Record<string, string> = {
@@ -149,6 +193,7 @@ type Fiche = {
   nom: string;
   detail: string;
   cle: string;
+  mots: string[];
 };
 
 async function main() {
@@ -158,6 +203,8 @@ async function main() {
     console.log(`Crée-le à la racine du projet et dépose tes photos dedans.\n`);
     return;
   }
+
+  if (APPLIQUER && !verifierConfig()) return;
 
   const fichiers = fs
     .readdirSync(racine)
@@ -182,19 +229,19 @@ async function main() {
       id: p.id, type: "joueur" as const,
       nom: `${p.firstName} ${p.lastName}`.trim(),
       detail: p.team.name,
-      cle: cle(`${p.firstName} ${p.lastName}`),
+      cle: cle(`${p.firstName} ${p.lastName}`), mots: motsUtiles(`${p.firstName} ${p.lastName}`),
     })),
     ...staff.map((s) => ({
       id: s.id, type: "encadrant" as const,
       nom: `${s.firstName} ${s.lastName}`.trim(),
       detail: s.team ? `${s.role} · ${s.team.name}` : s.role,
-      cle: cle(`${s.firstName} ${s.lastName}`),
+      cle: cle(`${s.firstName} ${s.lastName}`), mots: motsUtiles(`${s.firstName} ${s.lastName}`),
     })),
     ...bureau.map((b) => ({
       id: b.id, type: "bureau" as const,
       nom: `${b.firstName} ${b.lastName}`.trim(),
       detail: b.role,
-      cle: cle(`${b.firstName} ${b.lastName}`),
+      cle: cle(`${b.firstName} ${b.lastName}`), mots: motsUtiles(`${b.firstName} ${b.lastName}`),
     })),
   ].filter((f) => f.cle.length > 0);
 
@@ -212,11 +259,36 @@ async function main() {
       continue;
     }
 
-    // 1. Correspondance exacte (ordre des mots indifférent)
+    const motsFichier = motsUtiles(path.basename(fichier, path.extname(fichier)));
+
+    /** Retient un groupe de fiches si elles désignent une seule personne. */
+    const retenir = (proches: Fiche[]): Fiche[] | "ambigu" | null => {
+      if (proches.length === 0) return null;
+      const noms = new Set(proches.map((p) => p.cle));
+      return noms.size === 1 ? proches : "ambigu";
+    };
+
+    // 1. Correspondance exacte, l'ordre des mots n'ayant pas d'importance
     let lot = fiches.filter((f) => f.cle === cleFichier);
     let approx = false;
+    let candidats: Fiche[] | "ambigu" | null = null;
 
-    // 2. Sinon, on tolère les petites fautes
+    // 2. Le fichier ne donne qu'une partie du nom : « Kylian Saint Leger »
+    //    pour « Kylian Gadiffet Saint Leger »
+    if (lot.length === 0 && motsFichier.length >= 2) {
+      const proches = fiches.filter((f) =>
+        motsFichier.every((m) => f.mots.some((fm) => memeMot(fm, m)))
+      );
+      candidats = retenir(proches);
+      if (candidats === "ambigu") {
+        console.log(`  ?  ${fichier}  → plusieurs personnes possibles : ` +
+          [...new Set(proches.map((p) => p.nom))].join(", "));
+        ambigus++; continue;
+      }
+      if (candidats) { lot = candidats; approx = true; }
+    }
+
+    // 3. Petites fautes de frappe sur l'ensemble du nom
     if (lot.length === 0) {
       const limite = tolerance(cleFichier.length);
       let meilleur = Infinity;
@@ -227,14 +299,25 @@ async function main() {
         if (d < meilleur) { meilleur = d; proches.length = 0; }
         if (d === meilleur) proches.push(f);
       }
-      const noms = new Set(proches.map((p) => p.cle));
-      if (noms.size === 1) { lot = proches; approx = true; }
-      else if (noms.size > 1) {
+      candidats = retenir(proches);
+      if (candidats === "ambigu") {
         console.log(`  ?  ${fichier}  → plusieurs personnes possibles : ` +
           [...new Set(proches.map((p) => p.nom))].join(", "));
-        ambigus++;
-        continue;
+        ambigus++; continue;
       }
+      if (candidats) { lot = candidats; approx = true; }
+    }
+
+    // 4. Un seul mot dans le fichier : on l'accepte s'il ne désigne qu'une personne
+    if (lot.length === 0 && motsFichier.length === 1 && motsFichier[0].length >= 4) {
+      const proches = fiches.filter((f) => f.mots.some((fm) => memeMot(fm, motsFichier[0])));
+      candidats = retenir(proches);
+      if (candidats === "ambigu") {
+        console.log(`  ?  ${fichier}  → prénom seul, plusieurs personnes : ` +
+          [...new Set(proches.map((p) => p.nom))].join(", "));
+        ambigus++; continue;
+      }
+      if (candidats) { lot = candidats; approx = true; }
     }
 
     if (lot.length === 0) {
