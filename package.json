@@ -15,7 +15,8 @@
     "db:classement": "tsx prisma/seed-classement.ts",
     "db:creneaux": "tsx prisma/seed-creneaux.ts",
     "db:club": "tsx prisma/seed-club.ts",
-    "db:retirer-u16": "tsx prisma/retirer-u16.ts"
+    "db:retirer-u16": "tsx prisma/retirer-u16.ts",
+    "db:photos": "tsx prisma/import-photos.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

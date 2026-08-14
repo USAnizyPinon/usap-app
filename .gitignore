@@ -6,3 +6,6 @@ out
 .vercel
 *.tsbuildinfo
 next-env.d.ts
+
+# Photos à importer (traitées en local, non versionnées)
+photos-a-importer/
