@@ -1,0 +1,36 @@
+name: Synchronisation SportCorico USAP
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Toutes les 15 minutes entre 7 h et 21 h UTC. L'heure locale varie été/hiver.
+    # Les workflows planifiés de GitHub peuvent être retardés ou omis.
+    - cron: '3,18,33,48 7-21 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sportcorico-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - name: Vérifier la configuration
+        env:
+          CRON_SECRET: ${{ secrets.USAP_CRON_SECRET }}
+        run: |
+          test -n "$CRON_SECRET" || { echo 'Configurer le secret GitHub USAP_CRON_SECRET'; exit 1; }
+      - name: Synchroniser avec Vercel
+        env:
+          CRON_SECRET: ${{ secrets.USAP_CRON_SECRET }}
+        run: |
+          curl --fail-with-body --silent --show-error \
+            --connect-timeout 12 --max-time 90 \
+            --retry 2 --retry-delay 8 --retry-all-errors \
+            -H "Authorization: Bearer ${CRON_SECRET}" \
+            -H "Accept: application/json" \
+            "https://app.usanizypinon.fr/api/cron/sportcorico?auto=1"
