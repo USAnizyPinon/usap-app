@@ -55,7 +55,7 @@ export async function GET(req: Request) {
 
     if (!test) {
       if (!auto) await noterPassage();
-      if (rapport.ecrits > 0) {
+      if (rapport.crees + rapport.modifies > 0) {
         revalidatePath("/");
         revalidatePath("/matchs");
         revalidatePath("/equipes");

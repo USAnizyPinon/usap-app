@@ -224,8 +224,11 @@ model Match {
   scorers      String?
 
   // Synchronisation SportCorico
+  // sportcoricoId : identifiant du match chez eux. Survit a un report de date,
+  //   donc c'est lui qui sert a reconnaitre un match deja connu.
   // scoreLocked : un dirigeant a saisi le score a la main, la synchro n'y touche plus.
   // syncedAt : date de la derniere ecriture automatique, pour le suivi.
+  sportcoricoId String?  @unique
   scoreLocked  Boolean   @default(false)
   syncedAt     DateTime?
 

@@ -19,19 +19,20 @@ export default async function AdminSportCoricoPage() {
     <div className="space-y-8">
       <div className="card">
         <h2 className="font-display text-xl font-black uppercase">
-          Scores récupérés sur SportCorico
+          Calendrier et scores repris sur SportCorico
         </h2>
         <p className="mt-2 text-sm text-cream/70">
-          Les résultats saisis dans SportCorico pendant le match sont publiés sur la page
-          de chaque équipe. L&apos;application va les y relire et remplit les scores toute
-          seule, sans que personne ait à les retaper ici.
+          Ce que vous saisissez dans SportCorico — calendrier, horaires, résultats — est
+          publié sur la page de chaque équipe. L&apos;application va l&apos;y relire et se
+          met à jour seule. Vous n&apos;avez plus rien à retaper ici.
         </p>
         <ul className="mt-4 space-y-1.5 text-sm text-cream/60">
-          <li>• Le rapprochement se fait sur la date du match, pas sur le nom de l&apos;adversaire.</li>
+          <li>• Un match absent du calendrier est ajouté, avec le logo de l&apos;adversaire.</li>
+          <li>• Un match reporté voit sa date et son horaire corrigés.</li>
           <li>• Un score saisi à la main est conservé : la synchronisation ne l&apos;écrase jamais.</li>
           <li>
-            • Une notification part uniquement pour un résultat des dernières 48 h, pour ne
-            pas réveiller tout le club avec la saison entière.
+            • Une notification part uniquement pour un résultat des dernières 48 h, et
+            jamais plus de quatre par passage.
           </li>
         </ul>
         <p className="mt-4 text-xs text-cream/45">

@@ -26,8 +26,8 @@ export default function SyncScores() {
       fetch("/api/cron/sportcorico?auto=1", { cache: "no-store" })
         .then((r) => (r.ok ? r.json() : null))
         .then((rapport) => {
-          // On ne rafraichit que si un score a reellement change.
-          if (vivant && rapport && rapport.ecrits > 0) router.refresh();
+          // On ne rafraichit que si quelque chose a reellement change.
+          if (vivant && rapport && rapport.crees + rapport.modifies > 0) router.refresh();
         })
         .catch(() => {
           // Hors ligne ou service indisponible : la page reste valable.

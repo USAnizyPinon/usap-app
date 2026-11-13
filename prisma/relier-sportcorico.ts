@@ -16,6 +16,7 @@ const BASE = "https://www.sportcorico.com/clubs/us-anizy-pinon";
 
 const LIENS: { slug: string; url: string; note: string }[] = [
   { slug: "seniors", url: `${BASE}/anizy-pinon-us`, note: "Seniors 1 · Départemental 3, poule C" },
+  { slug: "seniors-b", url: `${BASE}/anizy-pinon-us-2`, note: "Seniors 2 · Lenoir, poule C" },
   { slug: "feminines-seniors", url: `${BASE}/anizy-pinon-us-9`, note: "Seniors féminines 1" },
   { slug: "u14-u15", url: `${BASE}/anizy-pinon-us-1`, note: "U15 1 · U15 D2, poule F" },
   // A verifier : SportCorico appelle ce groupe « Loisirs 1 », l'application

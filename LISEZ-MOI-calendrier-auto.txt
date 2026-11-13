@@ -1,0 +1,69 @@
+CALENDRIER ET SCORES REPRIS SUR SPORTCORICO — 2e version
+=========================================================
+
+A EXTRAIRE DIRECTEMENT DANS  C:\Users\rapha\usap-app
+Accepter le remplacement des fichiers.
+
+
+ETAPE 1 — SUPABASE, SQL EDITOR
+-------------------------------
+Coller et lancer :
+
+ALTER TABLE "Match" ADD COLUMN IF NOT EXISTS "sportcoricoId" TEXT;
+CREATE UNIQUE INDEX IF NOT EXISTS "Match_sportcoricoId_key" ON "Match"("sportcoricoId");
+
+INSERT INTO "Team" (id, name, slug, "order", level, venue, "sportcoricoUrl")
+SELECT 'team-seniors-b', 'Seniors B', 'seniors-b', t."order" + 1,
+       'Football a 11', t.venue,
+       'https://www.sportcorico.com/clubs/us-anizy-pinon/anizy-pinon-us-2'
+FROM "Team" t WHERE t.slug = 'seniors'
+ON CONFLICT (slug) DO UPDATE SET "sportcoricoUrl" = EXCLUDED."sportcoricoUrl";
+
+SELECT name, "sportcoricoUrl" FROM "Team" WHERE "sportcoricoUrl" IS NOT NULL ORDER BY "order";
+
+La derniere ligne doit renvoyer 5 categories.
+
+
+ETAPE 2 — POWERSHELL
+---------------------
+    cd C:\Users\rapha\usap-app
+    git add .
+    git commit -m "Import du calendrier SportCorico"
+    git push
+
+Attendre le point vert sur Vercel.
+
+
+ETAPE 3 — DANS L'APPLICATION
+-----------------------------
+Admin -> Scores auto -> "Tester sans enregistrer".
+Verifier le tableau, puis "Synchroniser maintenant".
+
+
+CE QUI CHANGE
+-------------
+La lecture ne passe plus par le texte affiche mais par le bloc de donnees
+que SportCorico depose dans ses pages. On y trouve les noms de clubs
+exacts, les horaires, les competitions, les tirs au but et les logos des
+deux equipes. Plus de doublons ni de noms approximatifs.
+
+Nouveautes :
+  - un match absent du calendrier est AJOUTE, avec le logo de l'adversaire
+  - un match reporte voit sa date et son horaire corriges
+  - les matchs sont reconnus par leur identifiant SportCorico, donc un
+    report de date ne cree jamais de doublon
+  - les coupes sont classees en bleu automatiquement
+  - categorie "Seniors B" creee et reliee a l'equipe 2
+
+Garde-fous inchanges :
+  - un score saisi a la main n'est jamais ecrase (case "Garder ce score")
+  - notifications seulement pour un resultat des dernieres 48 h
+  - jamais plus de 4 notifications par passage
+
+
+A SAVOIR
+--------
+SportCorico ne publie que 5 equipes pour le club : Seniors 1, Seniors 2,
+Feminines, U15 et Loisirs. Les categories U7 a U13 n'y ont pas de page
+publique : rien a importer pour elles, le foot d'animation n'a de toute
+facon ni score ni classement officiels.
