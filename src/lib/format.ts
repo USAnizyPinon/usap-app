@@ -7,12 +7,20 @@ export const COMPETITION_LABEL: Record<Competition, string> = {
   PLATEAU: "Plateau",
 };
 
+// Vercel fonctionne en UTC. Toutes les dates publiques du club sont affichees
+// dans le fuseau français, y compris lors des changements d'heure.
+const ZONE = "Europe/Paris";
 const dateFmt = new Intl.DateTimeFormat("fr-FR", {
+  timeZone: ZONE,
   weekday: "long",
   day: "numeric",
   month: "long",
 });
-const timeFmt = new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit" });
+const timeFmt = new Intl.DateTimeFormat("fr-FR", {
+  timeZone: ZONE,
+  hour: "2-digit",
+  minute: "2-digit",
+});
 
 export function formatDate(d: Date) {
   return dateFmt.format(d);
@@ -24,12 +32,15 @@ export function formatDateTime(d: Date) {
   return `${dateFmt.format(d)} · ${timeFmt.format(d)}`;
 }
 
-/** Valeur pour un <input type="datetime-local"> */
+/** Valeur pour un <input type="datetime-local">, toujours en heure française. */
 export function toLocalInput(d: Date) {
-  const p = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(
-    d.getMinutes()
-  )}`;
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: ZONE,
+    year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", hourCycle: "h23",
+  }).formatToParts(d);
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
+  return `${get("year")}-${get("month")}-${get("day")}T${get("hour")}:${get("minute")}`;
 }
 
 export type MatchResult = "VICTOIRE" | "NUL" | "DEFAITE" | null;
@@ -58,16 +69,8 @@ export function slugify(s: string) {
     .replace(/(^-|-$)/g, "");
 }
 
-/**
- * Chaque compétition a sa couleur, pour repérer une affiche d'un coup d'œil.
- * Le vert et le rouge sont réservés aux résultats (victoire / défaite) :
- * les utiliser ici laisserait croire à un score avant même le match.
- * Les classes sont écrites en entier : Tailwind ne lit pas les noms construits.
- */
-export const COMPETITION_STYLE: Record<
-  Competition,
-  { badge: string; accent: string; texte: string }
-> = {
+/** Styles de competitions inchanges. */
+export const COMPETITION_STYLE: Record<Competition, { badge: string; accent: string; texte: string }> = {
   CHAMPIONNAT: {
     badge: "border-jaune/40 bg-jaune/10 text-jaune",
     accent: "bg-jaune",
