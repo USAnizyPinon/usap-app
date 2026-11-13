@@ -7,6 +7,8 @@ export type EvenementICS = {
   lieu: string | null;
   categorie: CategorieJeunes | null;
   statut: string;
+  participants: string[];
+  sourceUrl: string | null;
 };
 
 function decoder(s: string): string {
@@ -58,6 +60,45 @@ function estMatchPriveU12U13(titre: string, debut: Date): boolean {
   return heureParis === "13";
 }
 
+/** N'extrait que les clubs explicitement fournis, jamais les personnes ni les convocations. */
+function clubsDepuisDescription(description: string): string[] {
+  const lignes = description.split(/\r?\n/);
+  const candidats: string[] = [];
+  for (const ligne of lignes) {
+    const correspondance = /^\s*(?:clubs? participants?|equipes? participantes?|adversaires?)\s*:\s*(.+)$/i.exec(ligne);
+    if (!correspondance) continue;
+    for (const nom of correspondance[1].split(/\s*[,;|]\s*/)) {
+      const propre = nom.trim();
+      if (propre && propre.length < 85 && !/[@\d]{5}|https?:|\+33/i.test(propre)) candidats.push(propre);
+    }
+  }
+  return [...new Set(candidats)].slice(0, 16);
+}
+
+function evenementSportCorico(description: string): string | null {
+  const match = description.match(/https:\/\/app\.sportcorico\.com\/app\/evenements?\/[^\s]+/i);
+  if (!match) return null;
+  try {
+    const url = new URL(match[0]);
+    return url.hostname === "app.sportcorico.com" ? url.toString() : null;
+  } catch { return null; }
+}
+
+/** 10 h Europe/Paris le jour de l'événement, en tenant compte de l'heure d'été. */
+function dixHeuresParis(date: Date): Date {
+  const parties = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Paris", year: "numeric", month: "2-digit", day: "2-digit",
+  }).formatToParts(date);
+  const get = (type: string) => parties.find((p) => p.type === type)?.value ?? "";
+  const an = Number(get("year")), mois = Number(get("month")), jour = Number(get("day"));
+  // À midi UTC, l'écart français est connu sans ambiguïté (pas de transition à midi).
+  const midi = new Date(Date.UTC(an, mois - 1, jour, 12));
+  const heure = Number(new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/Paris", hour: "2-digit", hourCycle: "h23",
+  }).format(midi));
+  return new Date(Date.UTC(an, mois - 1, jour, 10 - (heure - 12)));
+}
+
 export function analyserCalendrierICS(texteBrut: string): EvenementICS[] {
   if (!texteBrut.includes("BEGIN:VCALENDAR")) throw new Error("Flux ICS invalide.");
   const deplies = texteBrut.replace(/\r?\n[ \t]/g, "");
@@ -84,7 +125,10 @@ export function analyserCalendrierICS(texteBrut: string): EvenementICS[] {
     const fusion = `${titre} ${desc.replace(/https?:\/\/\S+/g, "")}`;
     const feminine = categorie(fusion) === "pole-feminin-jeune" ? "pole-feminin-jeune" : null;
     const cat = feminine ?? categorie(titre) ?? categorie(desc) ?? (estMatchPriveU12U13(titre, debut) ? "u12-u13" : null);
-    resultat.push({ uid, debut, titre, lieu: decoder(champs.get("LOCATION") ?? "").trim() || null, categorie: cat, statut });
+    const heureNormalisee = (["u6-u7", "u8-u9", "u10-u11", "pole-feminin-jeune"] as Array<string>).includes(cat ?? "")
+      ? dixHeuresParis(debut) : debut;
+    resultat.push({ uid, debut: heureNormalisee, titre, lieu: decoder(champs.get("LOCATION") ?? "").trim() || null,
+      categorie: cat, statut, participants: clubsDepuisDescription(desc), sourceUrl: evenementSportCorico(desc) });
   }
   // SportCorico publie parfois deux plateaux U10-U11 distincts avec exactement
   // le meme libelle, le meme depart et le meme lieu. Dans l'organisation USAP,
