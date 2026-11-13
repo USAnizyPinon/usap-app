@@ -1,5 +1,5 @@
 /** Calendrier privé SportCorico : seul le serveur connaît SPORTCORICO_ICS_URL. */
-export type CategorieJeunes = "u6-u7" | "u8-u9" | "u10-u11" | "u12-u13";
+export type CategorieJeunes = "u6-u7" | "u8-u9" | "u10-u11" | "u12-u13" | "pole-feminin-jeune";
 export type EvenementICS = {
   uid: string;
   debut: Date;
@@ -23,6 +23,12 @@ function dateUTC(s: string): Date | null {
 /** Ne classe jamais les matchs selon l'âge uniquement ou une supposition sur le terrain. */
 function categorie(texte: string): CategorieJeunes | null {
   const s = texte.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+  // Les U10-U11 feminines doivent etre rattachees au Pole Feminin Jeune,
+  // AVANT la detection generique des U10-U11 masculins/mixtes.
+  // On exige un indice explicite de feminines dans le meme libelle.
+  const estFeminine = /\b(FEMININES?|FILLES|FEMININ|U\s*1[01]\s*F|U\s*1[01]F|U10\s*[-/.· ]\s*U11\s*F|POLE FEMININ)\b/.test(s);
+  const estU10U11 = /\bU\s*10\b|\bU\s*11\b/.test(s);
+  if (estFeminine && (estU10U11 || /POLE FEMININ/.test(s))) return "pole-feminin-jeune";
   const paires: [RegExp, CategorieJeunes][] = [
     [/\bU\s*6\s*(?:[-/.·]|ET|A|\s)\s*U?\s*7\b|\bU6\s*U7\b/, "u6-u7"],
     [/\bU\s*8\s*(?:[-/.·]|ET|A|\s)\s*U?\s*9\b|\bU8\s*U9\b/, "u8-u9"],
@@ -73,7 +79,11 @@ export function analyserCalendrierICS(texteBrut: string): EvenementICS[] {
     if (statut === "CANCELLED") continue; // Ne jamais publier un événement annulé.
     const desc = decoder(champs.get("DESCRIPTION") ?? "");
     // Titre prioritaire. Description utilisée seulement si une catégorie y apparaît sans ambiguïté.
-    const cat = categorie(titre) ?? categorie(desc) ?? (estMatchPriveU12U13(titre, debut) ? "u12-u13" : null);
+    // La description peut preciser "feminines" alors que le titre n'indique que U10-U11.
+    // Ne pas chercher la categorie dans l'URL du lien SportCorico.
+    const fusion = `${titre} ${desc.replace(/https?:\/\/\S+/g, "")}`;
+    const feminine = categorie(fusion) === "pole-feminin-jeune" ? "pole-feminin-jeune" : null;
+    const cat = feminine ?? categorie(titre) ?? categorie(desc) ?? (estMatchPriveU12U13(titre, debut) ? "u12-u13" : null);
     resultat.push({ uid, debut, titre, lieu: decoder(champs.get("LOCATION") ?? "").trim() || null, categorie: cat, statut });
   }
   return resultat;

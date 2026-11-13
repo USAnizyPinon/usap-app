@@ -19,7 +19,7 @@ export async function synchroniserJeunesICS(test = false): Promise<RapportICS> {
   const flux = await chargerCalendrierICS();
   const rapport: RapportICS = { actif: flux !== null, lus: flux?.length ?? 0, classes: 0, sansCategorie: 0, u12u13: 0, crees: 0, modifies: 0, conflits: 0, exemplesSansCategorie: [], lignes: [] };
   if (!flux) return rapport;
-  const equipes = await prisma.team.findMany({ where: { slug: { in: ["u6-u7", "u8-u9", "u10-u11", "u12-u13"] } } });
+  const equipes = await prisma.team.findMany({ where: { slug: { in: ["u6-u7", "u8-u9", "u10-u11", "u12-u13", "pole-feminin-jeune"] } } });
   const parSlug = new Map(equipes.map((e) => [e.slug, e]));
   for (const item of flux) {
     if (!item.categorie) {
@@ -37,7 +37,12 @@ export async function synchroniserJeunesICS(test = false): Promise<RapportICS> {
     const existant = await prisma.match.findUnique({ where: { sportcoricoId: cle } });
     const nom = item.titre.replace(/^(Plateau|Match)\s*-\s*/i, "").trim();
     const plateau = /^Plateau\s*-/i.test(item.titre);
-    const competition = plateau ? "PLATEAU" as const : "AMICAL" as const;
+    // Regles metier USAP : U10-U11, U12-U13 et pole feminin jeune
+    // jouent en championnat, y compris si le libelle dit "Plateau".
+    // U6-U7 et U8-U9 restent des plateaux lorsque SportCorico les designe ainsi.
+    const competition = (["u10-u11", "u12-u13", "pole-feminin-jeune"] as string[]).includes(item.categorie)
+      ? "CHAMPIONNAT" as const
+      : plateau ? "PLATEAU" as const : "AMICAL" as const;
     // Ne pas déduire le domicile d'un simple nom d'adversaire.
     const domicile = !!item.lieu && /\b(PINON|ANIZY)\b/i.test(item.lieu);
     const date = jourParis(item.debut);
