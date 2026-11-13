@@ -1,12 +1,5 @@
 {
   "crons": [
-    {
-      "path": "/api/cron/rappels",
-      "schedule": "0 17 * * *"
-    },
-    {
-      "path": "/api/cron/sportcorico",
-      "schedule": "0 20 * * *"
-    }
+    { "path": "/api/cron/rappels", "schedule": "0 17 * * *" }
   ]
 }

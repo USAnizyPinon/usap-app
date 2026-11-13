@@ -1,0 +1,45 @@
+USAP — Synchronisation calendrier privé SportCorico des jeunes
+
+1. Extraire la racine du ZIP dans C:\Users\rapha\usap-app (remplacer les fichiers).
+   La racine du ZIP contient bien src/ et prisma/ ainsi que vercel.json.
+
+2. Cette version n'exige PAS de SQL Supabase et ne change pas les versions.
+   Elle réutilise Match.sportcoricoId avec le préfixe "ics:".
+
+3. Dans Vercel > Project > Settings > Environment Variables :
+   SPORTCORICO_ICS_URL = [lien ICS SportCorico privé]
+   Choisir Production, Preview si souhaité. Ne pas ajouter NEXT_PUBLIC_ au nom.
+   Le lien n'est PAS présent dans le ZIP.
+
+   Vérifier aussi CRON_SECRET : il doit exister et ne pas être vide.
+
+4. PowerShell :
+   cd C:\Users\rapha\usap-app
+   git add .
+   git commit -m "Synchronisation ICS des jeunes SportCorico"
+   git push
+
+5. Après déploiement : Admin > Scores auto > Calendrier privé SportCorico · jeunes
+   Cliquer "Tester les jeunes sans enregistrer".
+   Vérifier les catégories, doublons et éléments sans catégorie ; puis
+   cliquer "Importer les jeunes" si le rapport est correct.
+
+6. Mises à jour : à chaque ouverture de la page Matchs (au plus une fois
+   toutes les 15 minutes, toutes visites confondues), ou à 17h UTC au cron
+   quotidien unique (qui continue d'envoyer les rappels de match).
+   Le cron des scores publics à 20h UTC a été retiré pour respecter Hobby :
+   les scores publics restent relus à l'ouverture de la page Matchs et
+   via le bouton d'administration.
+
+7. U12-U13 : si un événement porte U12/U13 dans son titre OU sa description,
+   il sera classé. Les « Match amical » génériques ne sont PAS importés à
+   l'aveugle. Les événements non classables sont listés dans le rapport
+   réservé aux dirigeants pour faciliter l'identification manuelle.
+
+LIMITES : Aucun retrait automatique des événements ICS disparus/annulés.
+Les résultats des jeunes ne sont pas inventés. Importer depuis ICS ne prouve
+pas encore que les deux matchs U10 affichés à la même heure sont différents.
+Si date+titre+lieu coïncident exactement, un conflit est signalé/ignoré.
+
+SÉCURITÉ : Le lien ICS posté dans la conversation est potentiellement
+sensible. Régénérer si possible avant de le mettre sur Vercel.

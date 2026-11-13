@@ -1,0 +1,10 @@
+AUCUNE MIGRATION SQL POUR CETTE VERSION.
+
+Le flux ICS utilise Match.sportcoricoId deja existant (cle unique)
+avec le prefixe "ics:" devant l'UID SportCorico.
+Cela evite d'ajouter une colonne a Match et de toucher au schema Prisma 5.22.
+Les donnees restent dans les tables deja presentes.
+
+IMPORTANT : Ajouter SPORTCORICO_ICS_URL dans les variables d'environnement
+Vercel, cote serveur uniquement. Ne jamais mettre le lien dans GitHub,
+NEXT_PUBLIC_*, ou un fichier .env partage.
