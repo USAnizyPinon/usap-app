@@ -86,6 +86,21 @@ export function analyserCalendrierICS(texteBrut: string): EvenementICS[] {
     const cat = feminine ?? categorie(titre) ?? categorie(desc) ?? (estMatchPriveU12U13(titre, debut) ? "u12-u13" : null);
     resultat.push({ uid, debut, titre, lieu: decoder(champs.get("LOCATION") ?? "").trim() || null, categorie: cat, statut });
   }
+  // SportCorico publie parfois deux plateaux U10-U11 distincts avec exactement
+  // le meme libelle, le meme depart et le meme lieu. Dans l'organisation USAP,
+  // le second correspond au Pole Feminin Jeune. Les UID doivent rester distincts.
+  // Ne pas appliquer cette regle a trois evenements ou plus : ambiguité.
+  const groupes = new Map<string, EvenementICS[]>();
+  for (const ev of resultat) {
+    if (ev.categorie !== "u10-u11" || !/^Plateau\s*-\s*Plateau\s+U\s*10\s+U?\s*11\b/i.test(ev.titre)) continue;
+    const cle = `${ev.debut.toISOString()}|${ev.titre.toLocaleLowerCase("fr-FR")}|${(ev.lieu ?? "").toLocaleLowerCase("fr-FR")}`;
+    const groupe = groupes.get(cle) ?? [];
+    groupe.push(ev);
+    groupes.set(cle, groupe);
+  }
+  for (const groupe of groupes.values()) {
+    if (groupe.length === 2) groupe[1].categorie = "pole-feminin-jeune";
+  }
   return resultat;
 }
 

@@ -8,6 +8,7 @@ export type RapportICS = {
   classes: number;
   sansCategorie: number;
   u12u13: number;
+  poleFeminin: number;
   crees: number;
   modifies: number;
   conflits: number;
@@ -17,7 +18,7 @@ export type RapportICS = {
 
 export async function synchroniserJeunesICS(test = false): Promise<RapportICS> {
   const flux = await chargerCalendrierICS();
-  const rapport: RapportICS = { actif: flux !== null, lus: flux?.length ?? 0, classes: 0, sansCategorie: 0, u12u13: 0, crees: 0, modifies: 0, conflits: 0, exemplesSansCategorie: [], lignes: [] };
+  const rapport: RapportICS = { actif: flux !== null, lus: flux?.length ?? 0, classes: 0, sansCategorie: 0, u12u13: 0, poleFeminin: 0, crees: 0, modifies: 0, conflits: 0, exemplesSansCategorie: [], lignes: [] };
   if (!flux) return rapport;
   const equipes = await prisma.team.findMany({ where: { slug: { in: ["u6-u7", "u8-u9", "u10-u11", "u12-u13", "pole-feminin-jeune"] } } });
   const parSlug = new Map(equipes.map((e) => [e.slug, e]));
@@ -30,6 +31,7 @@ export async function synchroniserJeunesICS(test = false): Promise<RapportICS> {
     }
     rapport.classes++;
     if (item.categorie === "u12-u13") rapport.u12u13++;
+    if (item.categorie === "pole-feminin-jeune") rapport.poleFeminin++;
     const equipe = parSlug.get(item.categorie);
     if (!equipe) continue;
     const cle = `ics:${item.uid}`;
@@ -47,8 +49,21 @@ export async function synchroniserJeunesICS(test = false): Promise<RapportICS> {
     const domicile = !!item.lieu && /\b(PINON|ANIZY)\b/i.test(item.lieu);
     const date = jourParis(item.debut);
     if (existant && existant.teamId !== equipe.id) {
-      rapport.conflits++;
-      rapport.lignes.push({ categorie: equipe.name, titre: nom, date, statut: "Conflit de catégorie : ignoré" });
+      // Corrige une ancienne synchronisation qui avait attribue le deuxieme
+      // plateau U10-U11 au groupe mixte, alors qu'il est feminin.
+      // Une attribution manuelle protegee ou un score deja saisi ne bouge pas.
+      if (item.categorie === "pole-feminin-jeune" && !existant.scoreLocked &&
+          existant.scoreFor === null && existant.scoreAgainst === null) {
+        rapport.modifies++;
+        rapport.lignes.push({ categorie: equipe.name, titre: nom, date, statut: "À reclasser depuis U10-U11" });
+        if (!test) await prisma.match.update({ where: { id: existant.id }, data: {
+          teamId: equipe.id, kickoff: item.debut, opponent: nom,
+          venue: item.lieu, competition, home: domicile, syncedAt: new Date(),
+        } });
+      } else {
+        rapport.conflits++;
+        rapport.lignes.push({ categorie: equipe.name, titre: nom, date, statut: "Conflit de catégorie : vérification nécessaire" });
+      }
       continue;
     }
     if (!existant) {
