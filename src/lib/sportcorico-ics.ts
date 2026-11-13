@@ -40,6 +40,18 @@ function categorie(texte: string): CategorieJeunes | null {
   return uniques.length === 1 ? uniques[0] : null;
 }
 
+/** Règle USAP confirmée : les matchs privés génériques de 13 h sont les U12-U13.
+ * Heure de Paris (y compris passage été/hiver), jamais UTC.
+ * Les rencontres publiques explicitement nommées restent hors de cette règle.
+ */
+function estMatchPriveU12U13(titre: string, debut: Date): boolean {
+  if (!/^Match\s*-\s*Match\b/i.test(titre)) return false;
+  const heureParis = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/Paris", hour: "2-digit", hourCycle: "h23",
+  }).format(debut);
+  return heureParis === "13";
+}
+
 export function analyserCalendrierICS(texteBrut: string): EvenementICS[] {
   if (!texteBrut.includes("BEGIN:VCALENDAR")) throw new Error("Flux ICS invalide.");
   const deplies = texteBrut.replace(/\r?\n[ \t]/g, "");
@@ -61,7 +73,7 @@ export function analyserCalendrierICS(texteBrut: string): EvenementICS[] {
     if (statut === "CANCELLED") continue; // Ne jamais publier un événement annulé.
     const desc = decoder(champs.get("DESCRIPTION") ?? "");
     // Titre prioritaire. Description utilisée seulement si une catégorie y apparaît sans ambiguïté.
-    const cat = categorie(titre) ?? categorie(desc);
+    const cat = categorie(titre) ?? categorie(desc) ?? (estMatchPriveU12U13(titre, debut) ? "u12-u13" : null);
     resultat.push({ uid, debut, titre, lieu: decoder(champs.get("LOCATION") ?? "").trim() || null, categorie: cat, statut });
   }
   return resultat;

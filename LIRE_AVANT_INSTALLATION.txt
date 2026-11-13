@@ -1,0 +1,16 @@
+CORRECTIF U12-U13 SPORTCORICO
+
+Extraire le contenu de cette archive directement dans C:\Users\rapha\usap-app\ ; accepter le remplacement.
+
+AUCUN changement Prisma, SQL ou variable Vercel.
+
+Cette règle ne concerne QUE les événements privés ayant un titre « Match - Match… » à 13h heure de Paris et sans autre catégorie explicite.
+Un rapport de test reste indispensable avant importation.
+
+PowerShell :
+cd C:\Users\rapha\usap-app
+git add .
+git commit -m "Reconnaissance des matchs prives U12-U13 a 13h"
+git push origin main
+
+Dans Admin > Scores auto : Tester les jeunes sans enregistrer.
