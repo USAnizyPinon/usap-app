@@ -1,0 +1,46 @@
+SCORES AUTOMATIQUES DEPUIS SPORTCORICO
+=======================================
+
+A EXTRAIRE DIRECTEMENT DANS  C:\Users\rapha\usap-app
+Windows demandera de remplacer des fichiers : acceptez.
+N'extrayez PAS dans un sous-dossier, sinon rien ne sera remplace.
+
+Ensuite, dans PowerShell :
+
+    cd C:\Users\rapha\usap-app
+    npm run db:push
+    npm run db:sportcorico
+    npm run build
+    git add .
+    git commit -m "Scores automatiques depuis SportCorico"
+    git push
+
+Puis, dans l'application : Admin -> Scores auto -> "Tester sans enregistrer".
+Verifiez que les scores lus sont justes, puis "Synchroniser maintenant".
+
+
+CE QUI A CHANGE
+---------------
+Nouveaux fichiers :
+  src/lib/sportcorico.ts            lecture de la page SportCorico
+  src/lib/sportcorico-sync.ts       rapprochement avec nos matchs
+  src/app/api/cron/sportcorico/     declenchement automatique
+  src/app/admin/sportcorico/        ecran "Scores auto"
+  src/components/SyncScores.tsx     relecture a l'ouverture de l'appli
+  prisma/relier-sportcorico.ts      relie les categories a leurs pages
+
+Fichiers modifies :
+  prisma/schema.prisma              3 champs ajoutes + table AppState
+  src/app/admin/actions.ts          verrouillage d'un score saisi a la main
+  src/app/admin/layout.tsx          onglet "Scores auto"
+  src/app/admin/equipes/TeamForm.tsx   champ adresse SportCorico
+  src/app/admin/matchs/*            case "Garder ce score"
+  src/app/page.tsx, src/app/matchs/page.tsx   relecture a l'ouverture
+  vercel.json                       passage quotidien a 20h00 UTC
+  package.json                      script db:sportcorico
+
+
+SI UN SCORE EST FAUX
+--------------------
+Saisissez-le a la main dans Admin -> Matchs en laissant cochee la case
+"Garder ce score" : la synchronisation ne le modifiera plus jamais.

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import MatchCard from "@/components/MatchCard";
 import { formatDate } from "@/lib/format";
 import SportCoricoCard from "@/components/SportCoricoCard";
+import SyncScores from "@/components/SyncScores";
 
 // Page mise en cache : affichage instantane.
 // Toute modification par un dirigeant rafraichit la page aussitot.
@@ -62,6 +63,8 @@ export default async function HomePage() {
 
   return (
     <>
+      {/* Relit les scores publiés par SportCorico, sans rien afficher. */}
+      <SyncScores />
       {/* ---------------- HERO ---------------- */}
       <section className="stripes relative overflow-hidden border-b border-white/10">
         {/* L'ecusson en filigrane : discret, il tient tout le hero */}

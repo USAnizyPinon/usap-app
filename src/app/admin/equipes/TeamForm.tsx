@@ -86,6 +86,20 @@ export default function TeamForm({ team }: { team: Team }) {
           />
         </div>
         <div className="sm:col-span-2 lg:col-span-3">
+          <label className="label">Page SportCorico de l&apos;équipe</label>
+          <input
+            name="sportcoricoUrl"
+            type="url"
+            className="input"
+            placeholder="https://www.sportcorico.com/clubs/us-anizy-pinon/anizy-pinon-us"
+            defaultValue={team.sportcoricoUrl ?? ""}
+          />
+          <p className="mt-1 text-xs text-cream/50">
+            Les scores de cette catégorie seront relus ici automatiquement. Laissez vide
+            pour saisir les résultats à la main.
+          </p>
+        </div>
+        <div className="sm:col-span-2 lg:col-span-3">
           <label className="label">Présentation de la catégorie</label>
           <textarea
             name="description"

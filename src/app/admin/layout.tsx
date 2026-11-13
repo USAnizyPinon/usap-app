@@ -15,6 +15,7 @@ const TABS = [
   { href: "/admin/galerie", label: "Galerie" },
   { href: "/admin/partenaires", label: "Partenaires" },
   { href: "/admin/club", label: "Bureaux & staff" },
+  { href: "/admin/sportcorico", label: "Scores auto" },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {

@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import MatchCard from "@/components/MatchCard";
 import SportCoricoCard from "@/components/SportCoricoCard";
+import SyncScores from "@/components/SyncScores";
 
 // Page mise en cache : affichage instantane.
 // Toute modification par un dirigeant rafraichit la page aussitot.
@@ -33,6 +34,8 @@ export default async function MatchsPage({
 
   return (
     <div className="wrap py-12">
+      {/* Relit les scores publiés par SportCorico, sans rien afficher. */}
+      <SyncScores />
       <p className="eyebrow">Calendrier</p>
       <h1 className="title mt-3">Les matchs</h1>
 

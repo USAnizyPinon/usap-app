@@ -10,11 +10,13 @@ export default function ScoreForm({
   scoreFor,
   scoreAgainst,
   scorers,
+  scoreLocked,
 }: {
   matchId: string;
   scoreFor: number | null;
   scoreAgainst: number | null;
   scorers?: string | null;
+  scoreLocked?: boolean;
 }) {
   const [state, action] = useFormState(enregistrerScore, null);
 
@@ -66,7 +68,22 @@ export default function ScoreForm({
           <input type="checkbox" name="notifier" defaultChecked className="h-4 w-4 accent-jaune" />
           <span className="text-xs text-cream/60">Prévenir</span>
         </label>
+        {/* Un score saisi ici fait foi : SportCorico ne le réécrira pas. */}
+        <label className="flex cursor-pointer items-center gap-2 pb-2">
+          <input
+            type="checkbox"
+            name="verrouiller"
+            defaultChecked={scoreLocked ?? true}
+            className="h-4 w-4 accent-jaune"
+          />
+          <span className="text-xs text-cream/60">Garder ce score</span>
+        </label>
       </form>
+      {scoreLocked && (
+        <p className="mt-2 text-xs text-cream/45">
+          Score saisi à la main : la synchronisation SportCorico ne le modifiera pas.
+        </p>
+      )}
       <FormMessage state={state} />
     </div>
   );

@@ -119,6 +119,7 @@ export default async function AdminMatchsPage() {
                     scoreFor={m.scoreFor}
                     scoreAgainst={m.scoreAgainst}
                     scorers={m.scorers}
+                    scoreLocked={m.scoreLocked}
                   />
                   <Link
                     href={`/admin/matchs/${m.id}`}

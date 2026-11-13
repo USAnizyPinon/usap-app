@@ -118,6 +118,11 @@ model Team {
   contactName String?
   contactTel  String? // visible seulement pour les personnes connectées
 
+  // Page publique de l'equipe sur SportCorico, d'ou les scores sont relus.
+  // Exemple : https://www.sportcorico.com/clubs/us-anizy-pinon/anizy-pinon-us
+  // Laisser vide pour desactiver la synchronisation de cette categorie.
+  sportcoricoUrl String?
+
   players   Player[]
   staff     Staff[]
   matches   Match[]
@@ -217,6 +222,12 @@ model Match {
   notes        String?    @db.Text
   // Buteurs, saisis librement : "Clément Mahu (2), John Vigues"
   scorers      String?
+
+  // Synchronisation SportCorico
+  // scoreLocked : un dirigeant a saisi le score a la main, la synchro n'y touche plus.
+  // syncedAt : date de la derniere ecriture automatique, pour le suivi.
+  scoreLocked  Boolean   @default(false)
+  syncedAt     DateTime?
 
   @@index([teamId, kickoff])
 }
@@ -365,4 +376,16 @@ model JoinRequest {
   decidedAt DateTime?
 
   @@index([status, createdAt])
+}
+
+// =====================================================================
+//  REGLAGES INTERNES
+//  Quelques valeurs que l'application garde d'une execution a l'autre,
+//  comme l'heure de la derniere synchronisation SportCorico.
+// =====================================================================
+
+model AppState {
+  key       String   @id
+  value     String?
+  updatedAt DateTime @updatedAt
 }

@@ -101,7 +101,13 @@ export async function enregistrerScore(_prev: Etat | null, fd: FormData): Promis
 
     const match = await prisma.match.update({
       where: { id },
-      data: { scoreFor, scoreAgainst, scorers: str(fd, "scorers") || null },
+      data: {
+        scoreFor,
+        scoreAgainst,
+        scorers: str(fd, "scorers") || null,
+        // Coché : ce score fait foi, la synchronisation SportCorico le laisse.
+        scoreLocked: str(fd, "verrouiller") === "on",
+      },
       include: { team: { select: { name: true } } },
     });
     refreshAll();
@@ -617,6 +623,7 @@ export async function modifierEquipe(_prev: Etat | null, fd: FormData): Promise<
         restartDate: str(fd, "restartDate") || null,
         contactName: str(fd, "contactName") || null,
         contactTel: str(fd, "contactTel") || null,
+        sportcoricoUrl: str(fd, "sportcoricoUrl") || null,
       },
     });
 
